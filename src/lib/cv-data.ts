@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { t } from "./i18n";
 
 /**
  * @module cv-data
@@ -16,6 +17,25 @@ import { z } from "zod";
  * @see `src/routes/[[locale=locale]]/cv/+page.svelte` — Interactive CV page
  * @see `src/routes/[[locale=locale]]/cv/ats/+page.svelte` — ATS-friendly CV page
  */
+
+export const DurationKeySchema = z.object({
+  type: z.enum([
+    "years",
+    "year",
+    "semesters",
+    "semester",
+    "quarters",
+    "quarter",
+    "months",
+    "month",
+    "weeks",
+    "week",
+    "days",
+    "day",
+  ]),
+  count: z.number(),
+});
+export type DurationKey = z.infer<typeof DurationKeySchema>;
 
 /**
  * Represents a single education entry (school, university, or training period).
@@ -37,9 +57,10 @@ export const EducationItemSchema = z.object({
   descriptionKey: z.string(),
   image: z.string(),
   imageFallback: z.string(),
-  startdate: z.string(),
-  enddate: z.string(),
-  badgeKeys: z.array(z.string()),
+  startdate: z.date().optional(),
+  enddate: z.date().optional(),
+  badgesKeys: z.array(z.string()).optional(),
+  badgeDurationKey: DurationKeySchema.optional(),
 });
 export type EducationItem = z.infer<typeof EducationItemSchema>;
 
@@ -61,11 +82,12 @@ export const ExperienceItemSchema = z.object({
   nameKey: z.string(),
   imgAltKey: z.string(),
   descriptionKey: z.string(),
-  badgesKey: z.string(),
+  badgesKeys: z.string(),
   image: z.string(),
   imageFallback: z.string(),
-  startdate: z.string(),
-  enddate: z.string(),
+  startdate: z.date().optional(),
+  enddate: z.date().optional(),
+  badgeDurationKey: DurationKeySchema.optional(),
 });
 export type ExperienceItem = z.infer<typeof ExperienceItemSchema>;
 
@@ -109,12 +131,7 @@ export const SkillItemSchema = z.object({
   imageFallback: z.string(),
   level: z.number(),
   darkImage: z.string().optional(),
-  experience: z
-    .object({
-      type: z.enum(["years", "months", "month", "year"]),
-      count: z.number(),
-    })
-    .optional(),
+  experience: DurationKeySchema.optional(),
 });
 export type SkillItem = z.infer<typeof SkillItemSchema>;
 
@@ -142,14 +159,15 @@ export const educationItems: EducationItem[] = [
     descriptionKey: "Cv.education.items.tuberlin.description",
     image: "/pictures/lebenslauf/schools/LogoDerTUBerlin2020.svg",
     imageFallback: "TUBerlin",
-    startdate: "10.2025",
-    enddate: "09.2028",
-    badgeKeys: [
+    startdate: new Date("2025-10-01"),
+    enddate: new Date("2028-09-30"),
+    badgesKeys: [
       "Cv.about.address.berlin",
       "Cv.education.badges.studies",
       "Cv.education.badges.batchlor_of_science",
       "Cv.education.badges.it",
     ],
+    badgeDurationKey: { type: "semesters", count: 6 },
   },
   {
     key: "looking",
@@ -158,9 +176,8 @@ export const educationItems: EducationItem[] = [
     descriptionKey: "Cv.education.items.lookingForApprenticeship.description",
     image: "",
     imageFallback: "/",
-    startdate: "08.2024",
-    enddate: "09.2025",
-    badgeKeys: [],
+    startdate: new Date("2024-08-01"),
+    enddate: new Date("2025-09-30"),
   },
   {
     key: "oszimt",
@@ -169,14 +186,15 @@ export const educationItems: EducationItem[] = [
     descriptionKey: "Cv.education.items.oszimt.description",
     image: "/pictures/lebenslauf/schools/oszimt_logo.png",
     imageFallback: "OSZimt",
-    startdate: "08.2021",
-    enddate: "07.2024",
-    badgeKeys: [
+    startdate: new Date("2021-08-01"),
+    enddate: new Date("2024-07-31"),
+    badgesKeys: [
       "Cv.about.address.berlin",
       "Cv.education.badges.ausbildung",
       "Cv.education.badges.fachabitur",
       "Cv.education.badges.it",
     ],
+    badgeDurationKey: { type: "years", count: 3 },
   },
   {
     key: "cvl",
@@ -185,9 +203,10 @@ export const educationItems: EducationItem[] = [
     descriptionKey: "Cv.education.items.cvl.description",
     image: "/pictures/lebenslauf/schools/cvl_logo.png",
     imageFallback: "CvL",
-    startdate: "08.2010",
-    enddate: "07.2021",
-    badgeKeys: ["Cv.about.address.berlin", "Cv.education.badges.msaMitOG"],
+    startdate: new Date("2010-08-01"),
+    enddate: new Date("2021-07-31"),
+    badgesKeys: ["Cv.about.address.berlin", "Cv.education.badges.msaMitOG"],
+    badgeDurationKey: { type: "years", count: 10 },
   },
 ];
 
@@ -201,44 +220,48 @@ export const experienceItems: ExperienceItem[] = [
     nameKey: "Cv.experience.items.kfw.name",
     imgAltKey: "Cv.experience.items.kfw.imgAlt",
     descriptionKey: "Cv.experience.items.kfw.description",
-    badgesKey: "Cv.experience.items.kfw.badges",
+    badgesKeys: "Cv.experience.items.kfw.badges",
     image: "/pictures/lebenslauf/firms/kfw_logo.svg",
     imageFallback: "KfW",
-    startdate: "27.11.2023",
-    enddate: "02.02.2024",
+    startdate: new Date("2023-11-27"),
+    enddate: new Date("2024-02-02"),
+    badgeDurationKey: { type: "weeks", count: 9 },
   },
   {
     key: "adk",
     nameKey: "Cv.experience.items.adk.name",
     imgAltKey: "Cv.experience.items.adk.imgAlt",
     descriptionKey: "Cv.experience.items.adk.description",
-    badgesKey: "Cv.experience.items.adk.badges",
+    badgesKeys: "Cv.experience.items.adk.badges",
     image: "/pictures/lebenslauf/firms/adkberlin_logo.jpg",
     imageFallback: "ADK",
-    startdate: "02.2020",
-    enddate: "02.2020",
+    startdate: new Date("2020-02-01"),
+    enddate: new Date("2020-02-21"),
+    badgeDurationKey: { type: "weeks", count: 3 },
   },
   {
     key: "tosa",
     nameKey: "Cv.experience.items.tosa.name",
     imgAltKey: "Cv.experience.items.tosa.imgAlt",
     descriptionKey: "Cv.experience.items.tosa.description",
-    badgesKey: "Cv.experience.items.tosa.badges",
+    badgesKeys: "Cv.experience.items.tosa.badges",
     image: "/pictures/lebenslauf/firms/ToSa_logo.jpg",
     imageFallback: "TSS",
-    startdate: "01.2019",
-    enddate: "01.2019",
+    startdate: new Date("2019-01-01"),
+    enddate: new Date("2019-01-03"),
+    badgeDurationKey: { type: "days", count: 3 },
   },
   {
     key: "pfennig",
     nameKey: "Cv.experience.items.pfennig.name",
     imgAltKey: "Cv.experience.items.pfennig.imgAlt",
     descriptionKey: "Cv.experience.items.pfennig.description",
-    badgesKey: "Cv.experience.items.pfennig.badges",
+    badgesKeys: "Cv.experience.items.pfennig.badges",
     image: "/pictures/lebenslauf/firms/Pfennigpfeiffer_logo.jpg",
     imageFallback: "P",
-    startdate: "06.2018",
-    enddate: "06.2018",
+    startdate: new Date("2018-06-01"),
+    enddate: new Date("2018-06-01"),
+    badgeDurationKey: { type: "day", count: 1 },
   },
 ];
 
@@ -567,36 +590,22 @@ export const skillCategories: SkillCategory[] = [
 ];
 
 /**
- * Parses a German-format date string into a JavaScript `Date` object.
+ * Generates a human-readable experience label for a skill item by looking up the
+ * localized badge string from the Intlayer `cv` dictionary. Falls back to
+ * `"{count} {type}"` if the localization key is not found.
  *
- * Supports two formats:
- * - `"DD.MM.YYYY"` — full date with day precision
- * - `"MM.YYYY"` — month-only precision (day defaults to 1st)
- *
- * Returns `new Date(0)` (epoch) for undefined or unparseable input.
- *
- * @param s - Date string in German format, or undefined
- * @returns Parsed `Date` object
- *
- * @example
- * ```ts
- * parseDate("27.11.2023"); // Date: November 27, 2023
- * parseDate("10.2025");    // Date: October 1, 2025
- * parseDate(undefined);    // Date: January 1, 1970 (epoch)
- * ```
+ * @param {DurationKey} durationKey - The duration key containing type and count
+ * @returns {string} The formatted experience label (e.g. "3 years") or empty string
  */
-export function parseDate(s?: string): Date {
-  if (!s) return new Date(0);
-  const parts = s.split(".").map((p) => Number.parseInt(p, 10));
-  if (parts.length === 3) {
-    const [day, month, year] = parts;
-    return new Date(year, month - 1, day);
-  }
-  if (parts.length === 2) {
-    const [month, year] = parts;
-    return new Date(year, month - 1, 1);
-  }
-  return new Date(0);
+export function getDurationKeyLabel(
+  content: any,
+  durationKey?: DurationKey,
+): string {
+  if (!durationKey) return "";
+  const { type, count } = durationKey;
+  const key = `durationKeys.${type}`;
+  const result = t(content, key, { count });
+  return result !== key ? result : `${count} ${type}`;
 }
 
 /**
@@ -614,12 +623,15 @@ export function parseDate(s?: string): Date {
  * // sorted[0] is the most recent education entry
  * ```
  */
-export function sortByEndDate<
-  T extends { enddate?: string; startdate?: string },
->(items: T[]): T[] {
+export function sortByEndDate<T extends { enddate?: Date; startdate?: Date }>(
+  items: T[],
+): T[] {
   return [...items].sort((a, b) => {
-    const da = parseDate(a.enddate ?? a.startdate);
-    const db = parseDate(b.enddate ?? b.startdate);
+    const da = a.enddate ?? a.startdate;
+    const db = b.enddate ?? b.startdate;
+    if (!da && !db) return 0; // Both have no dates, consider equal
+    if (!da) return 1; // a has no date, b is more recent
+    if (!db) return -1; // b has no date, a is more recent
     return db.getTime() - da.getTime();
   });
 }

@@ -89,7 +89,7 @@ let {
     </div>
     <Card.Description>
       <span class={cn("flex flex-wrap gap-2 mt-3")}>
-        {#each badges as badge, i}
+        {#each badges.filter(b => b && b.trim() !== "").sort((a: string, b: string) => a.localeCompare(b)) as badge}
           <Badge variant="default">{badge}</Badge>
         {/each}
       </span>

@@ -34,7 +34,7 @@
  * @see {@link routes/[[locale=locale]]/cv/+layout.svelte} for shared CV layout with print/toggle buttons
  */
 
-import { useIntlayer } from "svelte-intlayer";
+import { useIntlayer, useLocale } from "svelte-intlayer";
 import * as Card from "$lib/components/ui/card";
 import MasonryGrid from "$lib/components/MasonryGrid.svelte";
 import * as TimelineCard from "$lib/components/timeline-card";
@@ -47,6 +47,8 @@ import {
   skillCategories,
   sortByEndDate,
   type SkillItem,
+  type DurationKey,
+  getDurationKeyLabel,
 } from "$lib/cv-data";
 import {
   GraduationCap,
@@ -67,6 +69,7 @@ const cv = useIntlayer("cv");
 const aboutme = useIntlayer("aboutme");
 const sites = useIntlayer("sites");
 const layout = useIntlayer("layout");
+const { locale } = useLocale();
 
 /** @constant {Array} sortedEducation - Education items sorted by end date (most recent first) */
 const sortedEducation = sortByEndDate(educationItems);
@@ -83,21 +86,6 @@ function getSkillsByCategory(cat: string): SkillItem[] {
   return skillItems
     .filter((s) => s.category === cat)
     .sort((a, b) => b.level - a.level);
-}
-/**
- * Generates a human-readable experience label for a skill item by looking up the
- * localized badge string from the Intlayer `cv` dictionary. Falls back to
- * `"{count} {type}"` if the localization key is not found.
- *
- * @param {SkillItem} skill - The skill item containing an optional `experience` property
- * @returns {string} The formatted experience label (e.g. "3 years") or empty string
- */
-function getExperienceLabel(skill: SkillItem): string {
-  if (!skill.experience) return "";
-  const { type, count } = skill.experience;
-  const key = `skills.badges.${type}`;
-  const result = t($cv, key, { count });
-  return result !== key ? result : `${count} ${type}`;
 }
 
 /**
@@ -120,12 +108,12 @@ if (mo < 0 || (mo === 0 && today.getDate() < birthday.getDate())) age--;
   <!-- Personal Info Card -->
   <Card.Root class={cn("my-glass print:bg-white print:shadow-none")}>
     <Card.Header class={cn("text-center pb-2")}>
-      <h1 class={cn("text-4xl md:text-5xl font-bold")}>{$aboutme.name}</h1>
-      <p class={cn("text-xl text-muted-foreground")}>{$cv.about.title}</p>
+      <h1 class={cn("text-4xl md:text-5xl font-bold")}>{t($aboutme, "name")}</h1>
+      <p class={cn("text-xl text-muted-foreground")}>{t($cv, "about.title")}</p>
     </Card.Header>
     <Card.Content>
       <div
-        class={cn("grid grid-cols-1 md:grid-cols-2 print:grid-cols-1 gap-6 text-base")}
+        class={cn("grid grid-cols-1 md:grid-cols-2 gap-6 text-base")}
       >
         <!-- Contact Info -->
         <div class={cn("flex flex-col gap-2")}>
@@ -145,7 +133,7 @@ if (mo < 0 || (mo === 0 && today.getDate() < birthday.getDate())) age--;
           </LocalizedLink>
           <div class={cn("flex items-center gap-2 text-muted-foreground")}>
             <Calendar class={cn("w-4 h-4")} />
-            {$cv.about.birthday}: 06.06.2003
+            {t($cv, "about.birthday")}: {new Date("2003-06-06").toLocaleDateString([$locale], { year: "numeric", month: "2-digit", day: "2-digit" })}
           </div>
         </div>
         <!-- Address -->
@@ -160,7 +148,7 @@ if (mo < 0 || (mo === 0 && today.getDate() < birthday.getDate())) age--;
             <div>
               {contactDetails.address.street}<br />
               {contactDetails.address.zip}
-              {$cv.about.address.berlin}, {$cv.about.address.germany}
+              {t($cv, "about.address.berlin")}, {t($cv, "about.address.germany")}
             </div>
           </LocalizedLink>
         </div>
@@ -174,87 +162,33 @@ if (mo < 0 || (mo === 0 && today.getDate() < birthday.getDate())) age--;
       class={cn("text-3xl md:text-4xl font-bold text-center flex items-center justify-center gap-3 mb-6")}
     >
       <GraduationCap class={cn("w-7 h-7 text-primary print:text-black")} />
-      {$cv.education.title}
+      {t($cv, "education.title")}
     </h2>
 
-    <!-- Large Timeline (Hidden on small screens) -->
-    <div class={cn("hidden sm:flex flex-col w-full mx-auto")}>
-      {#each sortedEducation as item, i}
-        <div class={cn("flex flex-row w-full min-h-25")}>
-          <!-- Opposite content (Dates) -->
-          <div class={cn("w-37.5 shrink-0 text-right pr-4 pt-4.5")}>
-            <Badge
-              variant="default"
-              class={cn("text-[10px] whitespace-nowrap opacity-80 font-normal tracking-wide")}
-            >
-              {item.startdate} - {item.enddate}
-            </Badge>
-          </div>
-          <!-- Separator (Line + Dot) -->
-          <div
-            class={cn("flex flex-col items-center flex-none relative w-2.75 mx-6")}
-          >
-            <!-- Continuous line -->
-            <div
-              class={cn("absolute w-0.5 bg-border/50 min-h-12.5", i === 0
-                ? 'top-6'
-                : 'top-0', i === sortedEducation.length - 1
-                ? 'bottom-[calc(100%-30px)]'
-                : 'bottom-0')}
-            ></div>
-            <div
-              class={cn("w-2.75 h-2.75 rounded-full bg-background border-2 border-muted-foreground mt-5 z-10 shadow-sm relative")}
-            ></div>
-          </div>
-          <!-- Content (Card) -->
-          <div class={cn("flex-1 pl-4 pb-8")}>
-            <TimelineCard.Root
-              image={item.image || ""}
-              imageAlt={String(t($cv, item.imgAltKey))}
-              imageFallback={item.imageFallback}
-              title={String(t($cv, item.nameKey))}
-              badges={item.badgeKeys.map((k) => {
-                if (k.includes("semester"))
-                  return String(t($cv, k, { semester: 6 }));
-                if (k.includes("years")) return String(t($cv, k, { years: 3 }));
-                return String(t($cv, k));
-              })}
-            >
-              <p class={cn("text-sm text-muted-foreground")}>
-                {String(t($cv, item.descriptionKey))}
-              </p>
-            </TimelineCard.Root>
-          </div>
-        </div>
-      {/each}
-    </div>
-
-    <!-- Small Timeline (Visible on small screens) -->
     <div
-      class={cn("block sm:hidden relative ml-3 border-l-2 border-border/50 pl-6 space-y-8 pb-4")}
+      class={cn("block relative ml-3 border-l-2 border-border/50 pl-6 space-y-8 pb-4")}
     >
       {#each sortedEducation as item}
         <div class={cn("relative")}>
           <div
             class={cn("absolute -left-7.5 top-5 w-2.75 h-2.75 rounded-full bg-transparent border-2 border-muted-foreground z-10 shadow-sm")}
           ></div>
+
           <TimelineCard.Root
             image={item.image || ""}
-            imageAlt={String(t($cv, item.imgAltKey))}
+            imageAlt={t($cv, item.imgAltKey)}
             imageFallback={item.imageFallback}
-            title={String(t($cv, item.nameKey))}
+            title={t($cv, item.nameKey)}
+            startTime={item.startdate || new Date(0)}
+            endTime={item.enddate || new Date(0)}
             badges={[
-              `${item.startdate} - ${item.enddate}`,
-              ...item.badgeKeys.map((k) => {
-                if (k.includes("semester"))
-                  return String(t($cv, k, { semester: 6 }));
-                if (k.includes("years")) return String(t($cv, k, { years: 3 }));
-                return String(t($cv, k));
-              }),
+              ...(item.badgesKeys && item.badgesKeys.length > 0
+  ? item.badgesKeys.map(k => t($cv, k)) : []),
+              getDurationKeyLabel($cv, item.badgeDurationKey),
             ]}
           >
             <p class={cn("text-sm text-muted-foreground")}>
-              {String(t($cv, item.descriptionKey))}
+              {t($cv, item.descriptionKey)}
             </p>
           </TimelineCard.Root>
         </div>
@@ -268,86 +202,36 @@ if (mo < 0 || (mo === 0 && today.getDate() < birthday.getDate())) age--;
       class={cn("text-3xl md:text-4xl font-bold text-center flex items-center justify-center gap-3 mb-6")}
     >
       <Briefcase class={cn("w-7 h-7 text-primary print:text-black")} />
-      {$cv.experience.title}
+      {t($cv, "experience.title")}
     </h2>
 
-    <!-- Large Timeline (Hidden on small screens) -->
-    <div class={cn("hidden sm:flex flex-col w-full mx-auto")}>
-      {#each sortedExperience as item, i}
-        <div class={cn("flex flex-row w-full min-h-25")}>
-          <!-- Opposite content (Dates) -->
-          <div class={cn("w-50 shrink-0 text-right pr-4 pt-4.5")}>
-            <Badge
-              variant="default"
-              class={cn("text-[10px] whitespace-nowrap opacity-80 font-normal tracking-wide")}
-            >
-              {item.startdate} - {item.enddate}
-            </Badge>
-          </div>
-          <!-- Separator (Line + Dot) -->
-          <div
-            class={cn("flex flex-col items-center flex-none relative w-2.75 mx-6")}
-          >
-            <!-- Continuous line -->
-            <div
-              class={cn("absolute w-0.5 bg-border/50 min-h-12.5", i === 0
-                ? 'top-6'
-                : 'top-0', i === sortedExperience.length - 1
-                ? 'bottom-[calc(100%-30px)]'
-                : 'bottom-0')}
-            ></div>
-            <div
-              class={cn("w-2.75 h-2.75 rounded-full bg-background border-2 border-muted-foreground mt-5 z-10 shadow-sm relative")}
-            ></div>
-          </div>
-          <!-- Content (Card) -->
-          <div class={cn("flex-1 pl-4 pb-8")}>
-            <TimelineCard.Root
-              image={item.image || ""}
-              imageAlt={String(t($cv, item.imgAltKey))}
-              imageFallback={item.imageFallback}
-              title={String(t($cv, item.nameKey))}
-              badges={String(t($cv, item.badgesKey) ?? "")
-                .split(",")
-                .map((b) => b.trim())
-                .filter(Boolean)}
-            >
-              <p class={cn("text-sm text-muted-foreground whitespace-pre-line")}>
-                {String(t($cv, item.descriptionKey))}
-              </p>
-            </TimelineCard.Root>
-          </div>
-        </div>
-      {/each}
-    </div>
 
-    <!-- Small Timeline (Visible on small screens) -->
     <div
-      class={cn("block sm:hidden relative ml-3 border-l-2 border-border/50 pl-6 space-y-8 pb-4")}
+      class={cn("block relative ml-3 border-l-2 border-border/50 pl-6 space-y-8 pb-4")}
     >
       {#each sortedExperience as item}
         <div class={cn("relative")}>
           <div
             class={cn("absolute -left-7.5 top-5 w-2.75 h-2.75 rounded-full bg-transparent border-2 border-muted-foreground z-10 shadow-sm")}
           ></div>
+
           <TimelineCard.Root
             image={item.image || ""}
-            imageAlt={String(t($cv, item.imgAltKey))}
+            imageAlt={t($cv, item.imgAltKey)}
             imageFallback={item.imageFallback}
-            title={String(t($cv, item.nameKey))}
+            title={t($cv, item.nameKey)}
+            startTime={item.startdate || new Date(0)}
+            endTime={item.enddate || new Date(0)}
             badges={[
-              `${item.startdate} - ${item.enddate}`,
-              ...String(t($cv, item.badgesKey) ?? "")
-                .split(",")
-                .map((b) => b.trim())
-                .filter(Boolean),
+              ...(item.badgesKeys !== "" ? tArr($cv, item.badgesKeys) : []),
+              getDurationKeyLabel($cv, item.badgeDurationKey),
             ]}
           >
             <p class={cn("text-sm text-muted-foreground whitespace-pre-line")}>
-              {String(t($cv, item.descriptionKey))}
+              {t($cv, item.descriptionKey)}
             </p>
           </TimelineCard.Root>
-        </div>
+          </div>
       {/each}
     </div>
   </section>
@@ -367,20 +251,20 @@ if (mo < 0 || (mo === 0 && today.getDate() < birthday.getDate())) age--;
         {#if skills.length > 0}
           <div class={cn("break-inside-avoid")}>
             <h3 class={cn("text-2xl font-semibold mb-6 ml-1 opacity-80")}>
-              {String(t($cv, category.titleKey))}
+              {t($cv, category.titleKey)}
             </h3>
             <MasonryGrid variant="skills">
               {#each skills as skill}
                 <SkillCard.Root
                   image={skill.darkImage || skill.image || ""}
                   imagePrint={skill.darkImage ? skill.image : undefined}
-                  imageAlt={String(t($cv, skill.imageAlt))}
+                  imageAlt={t($cv, skill.imageAlt)}
                   imageFallback={skill.imageFallback}
                   title={skill.title}
                   level={skill.level}
                   badges={[
-                    ...skill.badgeKeys.map((k) => String(t($cv, k))),
-                    ...(skill.experience ? [getExperienceLabel(skill)] : []),
+                    ...skill.badgeKeys.map((k) => t($cv, k)),
+                    ...(skill.experience ? [getDurationKeyLabel($cv, skill.experience)] : []),
                     ...(skill.staticBadges || []),
                   ]}
                   category={skill.category}
