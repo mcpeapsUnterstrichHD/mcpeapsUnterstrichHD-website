@@ -156,10 +156,8 @@ const cvContent = {
         },
         lookingForApprenticeship: {
           name: t({
-            [Locales.ENGLISH_UNITED_STATES]:
-              "Seeking Apprenticeship / Dual Studies Programs Seat search / Gap Year",
-            [Locales.GERMAN_GERMANY]:
-              "Ausbildungsplatzsuche / Duale Studiengängsplatz suche / Überbrückungsjahr",
+            [Locales.ENGLISH_UNITED_STATES]: "Gap Year",
+            [Locales.GERMAN_GERMANY]: "Überbrückungsjahr",
           }),
           imgAlt: t({
             [Locales.ENGLISH_UNITED_STATES]: "Actively Seeking Position",

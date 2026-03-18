@@ -28,7 +28,6 @@
  */
 
 import { useIntlayer } from "svelte-intlayer";
-import { page } from "$app/state";
 import * as Button from "$lib/components/ui/button";
 
 import { Download, FileText } from "@lucide/svelte";
@@ -39,6 +38,9 @@ import { cn } from "$lib/utils";
 import LocalizedLink from "$lib/components/LocalizedLink.svelte";
 import { createWebHaptics } from "web-haptics/svelte";
 import { onDestroy } from "svelte";
+import { IsMobile } from "$lib/hooks/is-mobile.svelte";
+import { IsTablet } from "$lib/hooks/is-tablet.svelte";
+import { page } from "$app/state";
 const { trigger, destroy } = createWebHaptics();
 onDestroy(destroy);
 const cv = useIntlayer("cv");
@@ -49,35 +51,33 @@ let { children } = $props();
 let isAtsPage = $derived(page.url.pathname.includes("/cv/ats"));
 let href = $derived(isAtsPage ? "/cv" : "/cv/ats");
 
+const isMobile = new IsMobile();
+const isTablet = new IsTablet();
 /**
  * Triggers the browser's native print dialog for PDF export.
  * The CV pages include print-specific CSS to ensure proper formatting.
  */
 function handlePrint() {
+  setTimeout(() => {}, 1000);
   window.print();
 }
 
 // Toast for printing settings
 const printToast = () => {
-  toast(t($cv, "recommendation.printingSettings.title"), {
-    description: t($cv, "recommendation.printingSettings.description"),
-  });
+  if (!isMobile.current && !isTablet.current)
+    toast(t($cv, "recommendation.printingSettings.title"), {
+      description: t($cv, "recommendation.printingSettings.description"),
+    });
 };
 // Toast for printing notice
 const noticeToast = () => {
-  toast(t($cv, "recommendation.printingNotice.title"), {
-    description: t($cv, "recommendation.printingNotice.description"),
-  });
+  if (!isMobile.current && !isTablet.current)
+    toast(t($cv, "recommendation.printingNotice.title"), {
+      description: t($cv, "recommendation.printingNotice.description"),
+    });
 };
 
 onMount(() => {
-  trigger([
-    { duration: 60, intensity: 1 },
-    { delay: 30, duration: 60, intensity: 0.75 },
-    { delay: 30, duration: 60 },
-    { delay: 30, duration: 60, intensity: 0.75 },
-    { delay: 30, duration: 60, intensity: 1 },
-  ]);
   printToast();
   noticeToast();
 });
@@ -87,6 +87,7 @@ onMount(() => {
 
 <!-- Action Buttons - shared across all CV pages -->
 <div class={cn("fixed top-4 right-4 z-50 print:hidden grid grid-cols-1 gap-2")}>
+{#if !isMobile.current && !isTablet.current}
   <Button.Root onclick={() => {
     trigger([
   { duration: 60, intensity: 1 },
@@ -110,6 +111,7 @@ onMount(() => {
     <Download class={cn("w-4 h-4")} />
     PDF
   </Button.Root>
+{/if}
   <LocalizedLink href={href}>
     <Button.Root onclick={() => {
     trigger([

@@ -47,7 +47,6 @@ import {
   skillCategories,
   sortByEndDate,
   type SkillItem,
-  type DurationKey,
   getDurationKeyLabel,
 } from "$lib/cv-data";
 import {
@@ -57,10 +56,8 @@ import {
   Mail,
   Phone,
   MapPin,
-  User,
   Calendar,
 } from "@lucide/svelte";
-import { Badge } from "$lib/components/ui/badge";
 import { t, tArr } from "$lib/i18n";
 import { cn } from "$lib/utils";
 import LocalizedLink from "$lib/components/LocalizedLink.svelte";
@@ -169,11 +166,6 @@ if (mo < 0 || (mo === 0 && today.getDate() < birthday.getDate())) age--;
       class={cn("block relative ml-3 border-l-2 border-border/50 pl-6 space-y-8 pb-4")}
     >
       {#each sortedEducation as item}
-        <div class={cn("relative")}>
-          <div
-            class={cn("absolute -left-7.5 top-5 w-2.75 h-2.75 rounded-full bg-transparent border-2 border-muted-foreground z-10 shadow-sm")}
-          ></div>
-
           <TimelineCard.Root
             image={item.image || ""}
             imageAlt={t($cv, item.imgAltKey)}
@@ -191,7 +183,6 @@ if (mo < 0 || (mo === 0 && today.getDate() < birthday.getDate())) age--;
               {t($cv, item.descriptionKey)}
             </p>
           </TimelineCard.Root>
-        </div>
       {/each}
     </div>
   </section>
@@ -210,11 +201,6 @@ if (mo < 0 || (mo === 0 && today.getDate() < birthday.getDate())) age--;
       class={cn("block relative ml-3 border-l-2 border-border/50 pl-6 space-y-8 pb-4")}
     >
       {#each sortedExperience as item}
-        <div class={cn("relative")}>
-          <div
-            class={cn("absolute -left-7.5 top-5 w-2.75 h-2.75 rounded-full bg-transparent border-2 border-muted-foreground z-10 shadow-sm")}
-          ></div>
-
           <TimelineCard.Root
             image={item.image || ""}
             imageAlt={t($cv, item.imgAltKey)}
@@ -231,7 +217,6 @@ if (mo < 0 || (mo === 0 && today.getDate() < birthday.getDate())) age--;
               {t($cv, item.descriptionKey)}
             </p>
           </TimelineCard.Root>
-          </div>
       {/each}
     </div>
   </section>
