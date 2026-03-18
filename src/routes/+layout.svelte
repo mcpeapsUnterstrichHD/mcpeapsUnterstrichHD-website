@@ -49,6 +49,13 @@ import { fly, fade } from "svelte/transition";
 import { cubicOut, cubicIn } from "svelte/easing";
 import { cn } from "$lib/utils";
 import { pwaAssetsHead } from "virtual:pwa-assets/head";
+import { injectSpeedInsights } from '@vercel/speed-insights/sveltekit';
+import { dev } from '$app/environment';
+import { injectAnalytics } from '@vercel/analytics/sveltekit';
+
+injectAnalytics({ mode: dev ? 'development' : 'production' });
+
+injectSpeedInsights();
 
 let { children }: { children: Snippet } = $props();
 </script>
