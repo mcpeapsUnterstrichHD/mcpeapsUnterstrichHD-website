@@ -4,11 +4,11 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
-    "dev": "vp dev",
-    "build": "vp build",
+    "dev": "vite dev",
+    "build": "vite build",
     "preview": "pnpm run build && wrangler dev",
     "preview:dev": "pnpm run build && wrangler dev --env dev",
-    "prepare": "vp config && svelte-kit sync || echo ''",
+    "prepare": "svelte-kit sync || echo ''",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
     "gen": "wrangler types",
@@ -22,7 +22,7 @@
     "@internationalized/date": "^3.11.0",
     "@lucide/svelte": "^0.576.0",
     "@neoconfetti/svelte": "^2.2.2",
-    "@sveltejs/adapter-vercel": "^6.3.3",
+    "@sveltejs/adapter-cloudflare": "^7.2.8",
     "@sveltejs/kit": "^2.53.4",
     "@sveltejs/vite-plugin-svelte": "^6.2.4",
     "@tailwindcss/forms": "^0.5.11",
@@ -53,13 +53,12 @@
     "unplugin-icons": "^23.0.1",
     "unplugin-turbo-console": "^2.3.0",
     "vaul-svelte": "1.0.0-next.7",
-    "vite": "npm:@voidzero-dev/vite-plus-core@latest",
+    "vite": "^7.3.1",
     "vite-intlayer": "^8.1.10",
     "vite-plugin-devtools-json": "^1.0.0",
     "vite-plugin-pwa": "^1.2.0",
     "vite-plugin-qrcode": "^0.3.0",
     "vite-plugin-restart": "^2.0.0",
-    "vite-plus": "latest",
     "workbox-precaching": "^7.4.0",
     "workbox-routing": "^7.4.0",
     "workbox-strategies": "^7.4.0",
@@ -77,12 +76,5 @@
     "vite-plugin-biome": "^1.1.3",
     "web-haptics": "^0.0.6",
     "zod": "^4.3.6"
-  },
-  "packageManager": "pnpm@10.32.1",
-  "pnpm": {
-    "overrides": {
-      "vite": "npm:@voidzero-dev/vite-plus-core@latest",
-      "vitest": "npm:@voidzero-dev/vite-plus-test@latest"
-    }
   }
 }
