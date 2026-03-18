@@ -66,7 +66,7 @@ $effect(() => {
  */
 let canonicalUrl = $derived.by(() => {
   const path = page.url.pathname.replace(/\/$/, "") || "/";
-  return `${path}`;
+  return `${page.url.protocol}//${page.url.host}/${path}`;
 });
 
 /**
@@ -114,7 +114,7 @@ let pathForAlternates = $derived.by(() => {
   <meta property="og:url" content={canonicalUrl} />
   <meta
     property="og:image"
-    content="{page.url.host}/pictures/logo.png"
+    content="{page.url.protocol}//{page.url.host}/pictures/logo.png"
   />
   <meta property="og:image:width" content="3000" />
   <meta property="og:image:height" content="3000" />
@@ -130,7 +130,7 @@ let pathForAlternates = $derived.by(() => {
   <meta name="twitter:creator:id" content="723191637950775296" />
   <meta
     name="twitter:image"
-    content="{page.url.host}/pictures/logo.png"
+    content="{page.url.protocol}//{page.url.host}/pictures/logo.png"
   />
   <meta name="twitter:image:alt" content="Logo of mcpeaps_HD" />
 </svelte:head>
