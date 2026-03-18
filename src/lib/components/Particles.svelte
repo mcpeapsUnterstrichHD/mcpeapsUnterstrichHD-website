@@ -2,7 +2,7 @@
 import { onMount } from "svelte";
 import { cn } from "$lib/utils";
 import { toast } from "svelte-sonner";
-import { Button } from "$lib/components/ui/button";
+import * as Button from "$lib/components/ui/button";
 
 interface Props {
   class?: string;
