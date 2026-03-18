@@ -1,6 +1,7 @@
 <script lang="ts">
 import { onMount } from "svelte";
 import { cn } from "$lib/utils";
+import { toast } from "svelte-sonner";
 
 interface Props {
   class?: string;
@@ -18,48 +19,85 @@ let {
   refresh = true,
 }: Props = $props();
 
-let canvas: HTMLCanvasElement;
+let canvas: HTMLCanvasElement | null = $state(null);
+let gl: WebGL2RenderingContext | null = $state(null);
+
+// NEU: Ein State, der kontrolliert, ob das Gyroskop aktiv lauschen soll
+let gyroEnabled = $state(false);
 
 let mouse = { x: 0, y: 0 };
-// Speichert die aktuelle reale CSS-Größe des Canvas
+
 let canvasSize = { w: 0, h: 0 };
 
 function handleMouseMove(event: MouseEvent) {
   if (!canvas) return;
+
   const rect = canvas.getBoundingClientRect();
-  // Parallax relativ zum exakten Zentrum dieses Canvas
+
   mouse.x = event.clientX - rect.left - rect.width / 2;
   mouse.y = event.clientY - rect.top - rect.height / 2;
 }
 
-// --- SHADER CODE ---
+function handleDeviceOrientation(event: DeviceOrientationEvent) {
+  if (!canvas) return;
+  const rect = canvas.getBoundingClientRect();
+  let tiltX = Math.max(-45, Math.min(45, event.gamma || 0));
+  let tiltY = Math.max(-45, Math.min(45, (event.beta || 0) - 45));
+  mouse.x = (tiltX / 45) * (rect.width / 2);
+  mouse.y = (tiltY / 45) * (rect.height / 2);
+}
+
+function requestGyro() {
+  if (typeof (DeviceOrientationEvent as any).requestPermission === "function") {
+    (DeviceOrientationEvent as any)
+      .requestPermission()
+      .then((state: string) => {
+        if (state === "granted") {
+          gyroEnabled = true; // Svelte aktiviert den Listener jetzt magisch!
+        }
+      })
+      .catch(console.error);
+  }
+}
+
 const vsSource = `#version 300 es
   in vec2 a_position;
   in vec4 a_color;
   in float a_size;
+
   uniform vec2 u_resolution;
+
   out vec4 v_color;
+
   void main() {
-      vec2 zeroToOne = a_position / u_resolution;
-      vec2 clipSpace = (zeroToOne * 2.0) - 1.0;
-      gl_Position = vec4(clipSpace * vec2(1, -1), 0.0, 1.0);
-      gl_PointSize = a_size;
-      v_color = a_color;
-  }`;
+    vec2 zeroToOne = a_position / u_resolution;
+    vec2 clipSpace = (zeroToOne * 2.0) - 1.0;
+
+    gl_Position = vec4(clipSpace * vec2(1, -1), 0.0, 1.0);
+    gl_PointSize = a_size;
+    v_color = a_color;
+  }
+  `;
 
 const fsSource = `#version 300 es
   precision mediump float;
+
   in vec4 v_color;
   out vec4 outColor;
+
   void main() {
-      float dist = distance(gl_PointCoord, vec2(0.5, 0.5)) * 2.0;
-      float alpha = 1.0 - smoothstep(0.8, 1.0, dist);
-      if (dist > 1.0) discard;
-      outColor = vec4(v_color.rgb, v_color.a * alpha);
-  }`;
+    float dist = distance(gl_PointCoord, vec2(0.5)) * 2.0;
+    float alpha = 1.0 - smoothstep(0.8, 1.0, dist);
+
+    if (dist > 1.0) discard;
+
+    outColor = vec4(v_color.rgb, v_color.a * alpha);
+  }
+  `;
 
 function handleResize() {
   if (!canvas) return;
+
   const dpr = window.devicePixelRatio || 1;
 
   canvasSize.w = window.innerWidth;
@@ -73,8 +111,32 @@ function handleResize() {
 }
 
 onMount(() => {
-  const gl = canvas.getContext("webgl2", { alpha: true, antialias: true });
-  if (!gl) return;
+  if (!canvas) return;
+
+  if (
+    typeof (DeviceOrientationEvent as any) !== "undefined" &&
+    typeof (DeviceOrientationEvent as any).requestPermission === "function"
+  ) {
+    toast(
+      "Gyroskop-Daten sind verfügbar! Möchtest du die Partikel mit deinem Gerät steuern?",
+      {
+        action: {
+          label: "Ja, aktivieren",
+          onClick: requestGyro,
+        },
+        duration: Number.POSITIVE_INFINITY,
+      },
+    );
+  } else if (window.DeviceOrientationEvent) {
+    gyroEnabled = true; // Android -> Darf direkt zuhören
+  }
+
+  gl = canvas.getContext("webgl2", { alpha: true, antialias: true });
+
+  if (!gl) {
+    console.error("WebGL2 not supported");
+    return;
+  }
 
   handleResize();
 
@@ -185,12 +247,12 @@ onMount(() => {
     gl!.bufferSubData(gl!.ARRAY_BUFFER, 0, particleData);
 
     // NEU UND WICHTIG: Viewport-Größe an aktuelle physische Auflösung anpassen
-    gl!.viewport(0, 0, canvas.width, canvas.height);
+    gl!.viewport(0, 0, canvas!.width, canvas!.height);
 
     gl!.clearColor(0, 0, 0, 0);
     gl!.clear(gl!.COLOR_BUFFER_BIT);
     gl!.useProgram(program);
-    gl!.uniform2f(resLoc, canvas.width, canvas.height);
+    gl!.uniform2f(resLoc, canvas!.width, canvas!.height);
     gl!.enable(gl!.BLEND);
     gl!.blendFunc(gl!.SRC_ALPHA, gl!.ONE_MINUS_SRC_ALPHA);
     gl!.drawArrays(gl!.POINTS, 0, quantity);
@@ -206,7 +268,11 @@ onMount(() => {
 });
 </script>
 
-<svelte:window onmousemove={handleMouseMove} onresize={handleResize} />
+<svelte:window
+  onmousemove={handleMouseMove}
+  ondeviceorientation={gyroEnabled ? handleDeviceOrientation : null}
+  onresize={handleResize}
+/>
 
 <canvas
   bind:this={canvas}

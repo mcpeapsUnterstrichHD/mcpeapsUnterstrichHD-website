@@ -79,6 +79,7 @@ export default defineConfig({
     hmr: {
       port: 3000,
     },
+    allowedHosts: ["localhost", "mahd-mbp"],
   },
   build: {
     target: "esnext",
