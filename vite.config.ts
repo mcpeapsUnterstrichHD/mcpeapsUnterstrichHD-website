@@ -2,7 +2,7 @@ import { intlayer, intlayerProxy } from "vite-intlayer";
 import tailwindcss from "@tailwindcss/vite";
 import devtoolsJson from "vite-plugin-devtools-json";
 import { sveltekit } from "@sveltejs/kit/vite";
-import { defineConfig } from "vite";
+import { defineConfig } from "vite-plus";
 import biomePlugin from "vite-plugin-biome";
 import Icons from "unplugin-icons/vite";
 import TurboConsole from "unplugin-turbo-console/vite";
@@ -11,6 +11,10 @@ import { SvelteKitPWA } from "@vite-pwa/sveltekit";
 import { qrcode } from "vite-plugin-qrcode";
 
 export default defineConfig({
+  staged: {
+    "*": "vp check --fix",
+  },
+  lint: { options: { typeAware: true, typeCheck: true } },
   plugins: [
     qrcode(),
     intlayer(),
