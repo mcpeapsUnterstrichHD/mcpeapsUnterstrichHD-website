@@ -29,6 +29,14 @@ const contactContent = {
       [Locales.ENGLISH_UNITED_STATES]: "Schedule a call or meeting via Cal.com",
       [Locales.GERMAN_GERMANY]: "Plane ein Gespräch oder Meeting über Cal.com",
     }),
+    mobilephone: t({
+      [Locales.ENGLISH_UNITED_STATES]: "Mobile Phone",
+      [Locales.GERMAN_GERMANY]: "Mobiltelefon",
+    }),
+    address: t({
+      [Locales.ENGLISH_UNITED_STATES]: "Address",
+      [Locales.GERMAN_GERMANY]: "Adresse",
+    }),
   },
 } satisfies Dictionary;
 

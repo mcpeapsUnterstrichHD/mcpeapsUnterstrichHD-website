@@ -117,14 +117,6 @@ const cvContent = {
           [Locales.ENGLISH_UNITED_STATES]: "Computer Science",
           [Locales.GERMAN_GERMANY]: "Informatik",
         }),
-        years: t({
-          [Locales.ENGLISH_UNITED_STATES]: "{years} Years",
-          [Locales.GERMAN_GERMANY]: "{years} Jahre",
-        }),
-        semester: t({
-          [Locales.ENGLISH_UNITED_STATES]: "{semester} Semesters",
-          [Locales.GERMAN_GERMANY]: "{semester} Semester",
-        }),
         msaMitOG: t({
           [Locales.ENGLISH_UNITED_STATES]:
             "Secondary School Certificate (College Prep)",
@@ -154,22 +146,20 @@ const cvContent = {
               "Berlin",
               "Bachelor of Science",
               "Computer Science",
-              "6 Semesters",
             ],
             [Locales.GERMAN_GERMANY]: [
               "Berlin",
               "Bachelor of Science",
               "Informatik",
-              "6 Semester",
             ],
           }),
         },
         lookingForApprenticeship: {
           name: t({
             [Locales.ENGLISH_UNITED_STATES]:
-              "Seeking Apprenticeship / Gap Year",
+              "Seeking Apprenticeship / Dual Studies Programs Seat search / Gap Year",
             [Locales.GERMAN_GERMANY]:
-              "Ausbildungsplatzsuche / Überbrückungsjahr",
+              "Ausbildungsplatzsuche / Duale Studiengängsplatz suche / Überbrückungsjahr",
           }),
           imgAlt: t({
             [Locales.ENGLISH_UNITED_STATES]: "Actively Seeking Position",
@@ -177,9 +167,9 @@ const cvContent = {
           }),
           description: t({
             [Locales.ENGLISH_UNITED_STATES]:
-              "I spent this period actively seeking an apprenticeship as an IT Specialist for Application Development while continuing my personal coding projects.",
+              "I spent this period actively seeking an apprenticeship as an IT Specialist for Application Development or a dual studies programs in the field of Computer Science while continuing my personal coding projects.",
             [Locales.GERMAN_GERMANY]:
-              "Ich habe in dieser Zeit aktiv nach einem Ausbildungsplatz als Fachinformatiker für Anwendungsentwicklung gesucht und meine persönlichen Programmierprojekte weitergeführt.",
+              "Ich habe in dieser Zeit aktiv nach einem Ausbildungsplatz als Fachinformatiker für Anwendungsentwicklung oder ein Duales Studiium im Bereich Informatik gesucht und meine persönlichen Programmierprojekte weitergeführt.",
           }),
         },
         oszimt: {
@@ -205,14 +195,12 @@ const cvContent = {
               "Vocational Training",
               "Technical Diploma",
               "Computer Science",
-              "3 Years",
             ],
             [Locales.GERMAN_GERMANY]: [
               "Berlin",
               "Berufsausbildung",
               "Fachhochschulreife",
               "Informatik",
-              "3 Jahre",
             ],
           }),
         },
@@ -273,7 +261,6 @@ const cvContent = {
               "Ansible",
               "Automation",
               "Confluence",
-              "9 Weeks",
             ],
             [Locales.GERMAN_GERMANY]: [
               "Berlin",
@@ -281,7 +268,6 @@ const cvContent = {
               "Ansible",
               "Automatisierung",
               "Confluence",
-              "9 Wochen",
             ],
           }),
         },
@@ -306,14 +292,12 @@ const cvContent = {
               "Software Development",
               "Music Technology",
               "Student Internship",
-              "3 Weeks",
             ],
             [Locales.GERMAN_GERMANY]: [
               "Berlin",
               "Softwareentwicklung",
               "Musik",
               "Schülerpraktikum",
-              "3 Wochen",
             ],
           }),
         },
@@ -338,13 +322,11 @@ const cvContent = {
               "Trebbin",
               "Office Administration",
               "Student Internship",
-              "3 Days",
             ],
             [Locales.GERMAN_GERMANY]: [
               "Trebbin",
               "Büroorganisation",
               "Schülerpraktikum",
-              "3 Tage",
             ],
           }),
         },
@@ -368,13 +350,11 @@ const cvContent = {
               "Berlin",
               "Retail",
               "Student Internship",
-              "1 Day",
             ],
             [Locales.GERMAN_GERMANY]: [
               "Berlin",
               "Einzelhandel",
               "Schülerpraktikum",
-              "1 Tag",
             ],
           }),
         },
@@ -430,22 +410,6 @@ const cvContent = {
           [Locales.ENGLISH_UNITED_STATES]: "Native Speaker",
           [Locales.GERMAN_GERMANY]: "Muttersprache",
         }),
-        years: t({
-          [Locales.ENGLISH_UNITED_STATES]: "{count} Years",
-          [Locales.GERMAN_GERMANY]: "{count} Jahre",
-        }),
-        months: t({
-          [Locales.ENGLISH_UNITED_STATES]: "{count} Months",
-          [Locales.GERMAN_GERMANY]: "{count} Monate",
-        }),
-        year: t({
-          [Locales.ENGLISH_UNITED_STATES]: "{count} Year",
-          [Locales.GERMAN_GERMANY]: "{count} Jahr",
-        }),
-        month: t({
-          [Locales.ENGLISH_UNITED_STATES]: "{count} Month",
-          [Locales.GERMAN_GERMANY]: "{count} Monat",
-        }),
       },
       categories: {
         languages: {
@@ -497,6 +461,56 @@ const cvContent = {
           }),
         },
       },
+    },
+    durationKeys: {
+      years: t({
+        [Locales.ENGLISH_UNITED_STATES]: "{count} Years",
+        [Locales.GERMAN_GERMANY]: "{count} Jahre",
+      }),
+      year: t({
+        [Locales.ENGLISH_UNITED_STATES]: "{count} Year",
+        [Locales.GERMAN_GERMANY]: "{count} Jahr",
+      }),
+      semesters: t({
+        [Locales.ENGLISH_UNITED_STATES]: "{count} Semesters",
+        [Locales.GERMAN_GERMANY]: "{count} Semester",
+      }),
+      semester: t({
+        [Locales.ENGLISH_UNITED_STATES]: "{count} Semester",
+        [Locales.GERMAN_GERMANY]: "{count} Semester",
+      }),
+      quarters: t({
+        [Locales.ENGLISH_UNITED_STATES]: "{count} Quarters",
+        [Locales.GERMAN_GERMANY]: "{count} Quartale",
+      }),
+      quarter: t({
+        [Locales.ENGLISH_UNITED_STATES]: "{count} Quarter",
+        [Locales.GERMAN_GERMANY]: "{count} Quartal",
+      }),
+      months: t({
+        [Locales.ENGLISH_UNITED_STATES]: "{count} Months",
+        [Locales.GERMAN_GERMANY]: "{count} Monate",
+      }),
+      month: t({
+        [Locales.ENGLISH_UNITED_STATES]: "{count} Month",
+        [Locales.GERMAN_GERMANY]: "{count} Monat",
+      }),
+      weeks: t({
+        [Locales.ENGLISH_UNITED_STATES]: "{count} Weeks",
+        [Locales.GERMAN_GERMANY]: "{count} Wochen",
+      }),
+      week: t({
+        [Locales.ENGLISH_UNITED_STATES]: "{count} Week",
+        [Locales.GERMAN_GERMANY]: "{count} Woche",
+      }),
+      days: t({
+        [Locales.ENGLISH_UNITED_STATES]: "{count} Days",
+        [Locales.GERMAN_GERMANY]: "{count} Tage",
+      }),
+      day: t({
+        [Locales.ENGLISH_UNITED_STATES]: "{count} Day",
+        [Locales.GERMAN_GERMANY]: "{count} Tag",
+      }),
     },
   },
 } satisfies Dictionary;

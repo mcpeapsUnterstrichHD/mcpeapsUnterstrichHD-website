@@ -20,6 +20,9 @@ import * as Card from "$lib/components/ui/card";
 import * as Avatar from "$lib/components/ui/avatar";
 import { Badge } from "$lib/components/ui/badge";
 import { cn } from "$lib/utils";
+import { useLocale } from "svelte-intlayer";
+
+const { locale } = useLocale();
 
 /**
  * Props for the TimelineCard component.
@@ -37,27 +40,42 @@ interface Props {
   imageFallback: string;
   title: string;
   badges: string[];
+  startTime: Date;
+  endTime: Date;
   children?: import("svelte").Snippet;
 }
 
-let { image, imageAlt, imageFallback, title, badges, children }: Props =
-  $props();
+let {
+  image,
+  imageAlt,
+  imageFallback,
+  title,
+  badges,
+  startTime,
+  endTime,
+  children,
+}: Props = $props();
 </script>
 
 <Card.Root class={cn("my-glass")}>
   <Card.Header>
-    <div class={cn("flex flex-row items-center justify-between gap-1")}>
+  <div class={cn("flex flex-row items-center justify-between gap-1")}>
+    <div class={cn("flex flex-row items-center gap-3")}>
       <Avatar.Root>
         <Avatar.Image src={image} alt={imageAlt} />
         <Avatar.Fallback>{imageFallback}</Avatar.Fallback>
       </Avatar.Root>
       <Card.Title>{title}</Card.Title>
     </div>
+    <Badge variant="default">{startTime.toLocaleDateString([$locale], { year: "numeric", month: "2-digit", day: "2-digit" })} - {endTime.toLocaleDateString([$locale], { year: "numeric", month: "2-digit", day: "2-digit" })}</Badge>
+    </div>
     <Card.Description>
       <span class={cn("flex flex-wrap gap-2")}>
-        {#each badges as badge}
-          <Badge variant="default">{badge}</Badge>
-        {/each}
+        {#if badges && badges.length > 0}
+        {#each badges.filter(b => b && b.trim() !== "").sort((a: string, b: string) => a.localeCompare(b)) as badge}
+            <Badge variant="default">{badge}</Badge>
+          {/each}
+        {/if}
       </span>
     </Card.Description>
   </Card.Header>

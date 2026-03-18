@@ -28,7 +28,7 @@
  * @see {@link $lib/contact} for contact details
  */
 
-import { useIntlayer } from "svelte-intlayer";
+import { useIntlayer, useLocale } from "svelte-intlayer";
 import { contactDetails } from "$lib/contact";
 import {
   educationItems,
@@ -36,32 +36,18 @@ import {
   skillItems,
   skillCategories,
   sortByEndDate,
+  getDurationKeyLabel,
 } from "$lib/cv-data";
-import { t } from "$lib/i18n";
+import { t, tArr } from "$lib/i18n";
 import { cn } from "$lib/utils";
+
+const { locale } = useLocale();
 
 const cv = useIntlayer("cv");
 const aboutme = useIntlayer("aboutme");
 const sites = useIntlayer("sites");
 const layout = useIntlayer("layout");
-
-/**
- * Converts a German-style date string (e.g. "06.2003" or "01.06.2003")
- * into an ATS-friendly `MM/YYYY` format.
- *
- * @param {string} d - Date string in dot-separated format (e.g. "06.2003" or "01.06.2003")
- * @returns {string} Reformatted date string (e.g. "06/2003" or "06/2003"), or original if unparseable
- *
- * @example
- * formatDate("06.2023")     // => "06/2023"
- * formatDate("01.06.2003")  // => "06/2003"
- */
-function formatDate(d: string): string {
-  const parts = d.split(".");
-  if (parts.length === 2) return `${parts[0]}/${parts[1]}`;
-  if (parts.length === 3) return `${parts[1]}/${parts[2]}`;
-  return d;
-}
+const contact = useIntlayer("contact");
 
 /** @constant {Array} sortedEducation - Education entries sorted by end date (most recent first) */
 const sortedEducation = sortByEndDate(educationItems);
@@ -70,90 +56,102 @@ const sortedExperience = sortByEndDate(experienceItems);
 </script>
 
 <svelte:head>
-  <title>{$sites.cv} | {$layout.title}</title>
+  <title>{t($sites, "cv")} | {t($layout, "title")}</title>
 </svelte:head>
 
 <div class={cn("ats-cv")}>
-  <!-- Header -->
-  <h1>{$aboutme.name}</h1>
-  <div class={cn("text-foreground subtitle")}>{$cv.about.title}</div>
-
-  <!-- Contact Info -->
-  <div class={cn("contact-info")}>
-    <span>{contactDetails.email.display}</span>
-    <span>|</span>
-    <span>{contactDetails.telephone.display}</span>
-    <span>|</span>
-    <span
-      >{contactDetails.address.street}, {contactDetails.address.zip}
-      {t($cv, contactDetails.address.city)}, {t(
-        $cv,
-        contactDetails.address.country,
-      )}</span
-    >
-    <span>|</span>
-    <span>{$cv.about.birthday}: 06.06.2003</span>
+  <div>
+    <div class={cn("text-center pb-2")}>
+      <h1 class={cn("text-4xl md:text-5xl font-bold")}>{t($aboutme, "name")}</h1>
+      <p class={cn("text-xl text-muted-foreground")}>{t($cv, "about.title")}</p>
+    </div>
+    <div>
+      <div
+        class={cn("justify-center grid grid-cols-1 md:grid-cols-2 gap-6 text-base")}
+      >
+        <!-- Contact Info -->
+        <div class={cn("flex flex-col gap-2")}>
+          <p class={cn("flex items-center gap-2 hover:text-primary transition-colors")}>
+            Email: {contactDetails.email.display}
+          </p>
+          <p class={cn("flex items-center gap-2 hover:text-primary transition-colors")}>
+            {t($contact, "mobilephone")}: {contactDetails.telephone.display}
+          </p>
+          <div class={cn("flex items-center gap-2 text-muted-foreground")}>
+            {t($cv, "about.birthday")}: {new Date("2003-06-06").toLocaleDateString([$locale], { year: "numeric", month: "2-digit", day: "2-digit" })}
+          </div>
+        </div>
+        <!-- Address -->
+        <div class={cn("flex flex-col gap-2")}>
+          <p class={cn("flex items-start gap-2 hover:text-primary transition-colors")}>
+            {t($contact, "address")}:
+            <span>
+              {contactDetails.address.street}<br />
+              {contactDetails.address.zip}
+              {t($cv, "about.address.berlin")}, {t($cv, "about.address.germany")}
+            </span>
+          </p>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Education -->
-  <h2>{$cv.education.title}</h2>
+  <h2>{t($cv, "education.title")}</h2>
   {#each sortedEducation as edu}
-    {@const dateRange = `${formatDate(edu.startdate)} – ${formatDate(edu.enddate)}`}
+    {@const dateRange = `${edu.startdate ? edu.startdate.toLocaleDateString([$locale], { year: "numeric", month: "2-digit", day: "2-digit" }) : ""} – ${edu.enddate ? edu.enddate.toLocaleDateString([$locale], { year: "numeric", month: "2-digit", day: "2-digit" }) : ""}`}
     {@const description = t($cv, edu.descriptionKey).replace(/[•]/g, "-")}
 
-    {@const badges = edu.badgeKeys && edu.badgeKeys.length > 0
-      ? edu.badgeKeys.map(k => t($cv, k)).join(", ")
+    {@const badges = edu.badgesKeys && edu.badgesKeys.length > 0
+      ? [...edu.badgesKeys.map(k => t($cv, k)), getDurationKeyLabel($cv, edu.badgeDurationKey)].filter(b => b && b.trim() !== "").sort((a, b) => a.localeCompare(b)).join(", ")
       : ""}
+
 
     <div class={cn("entry")}>
       <div class={cn("entry-header")}>
         <span class={cn("entry-title")}>{t($cv, edu.nameKey)}</span>
         <span class={cn("entry-date")}>{dateRange}</span>
       </div>
-      <p class={cn("entry-description")}>{description}</p>
-
       {#if badges}
         <p class={cn("entry-badges")}><strong>Keywords:</strong> {badges}</p>
       {/if}
+      <p class={cn("entry-description")}>{description}</p>
     </div>
   {/each}
 
   <!-- Experience -->
-  <h2>{$cv.experience.title}</h2>
+  <h2>{t($cv, "experience.title")}</h2>
   {#each sortedExperience as exp}
-    {@const dateRange = `${formatDate(exp.startdate)} – ${formatDate(exp.enddate)}`}
+    {@const dateRange = `${exp.startdate ? exp.startdate.toLocaleDateString([$locale], { year: "numeric", month: "2-digit", day: "2-digit" }) : ""} – ${exp.enddate ? exp.enddate.toLocaleDateString([$locale], { year: "numeric", month: "2-digit", day: "2-digit" }) : ""}`}
     {@const description = t($cv, exp.descriptionKey)
       .replace(/[•]/g, "")
       .replace(/\n/g, " ")
       .trim()}
 
-    {@const badges = exp.badgesKey ? t($cv, exp.badgesKey) : ""}
+    {@const badges = exp.badgesKeys ? [...tArr($cv, exp.badgesKeys), getDurationKeyLabel($cv, exp.badgeDurationKey)].filter(b => b && b.trim() !== "").sort((a, b) => a.localeCompare(b)).join(", ")
+    : ""}
 
     <div class={cn("entry")}>
       <div class={cn("entry-header")}>
         <span class={cn("entry-title")}>{t($cv, exp.nameKey)}</span>
         <span class={cn("entry-date")}>{dateRange}</span>
       </div>
-      <p class={cn("entry-description")}>{description}</p>
-
       {#if badges}
         <p class={cn("entry-badges")}><strong>Keywords:</strong> {badges}</p>
       {/if}
+      <p class={cn("entry-description")}>{description}</p>
     </div>
   {/each}
 
   <!-- Skills -->
-  <h2>{$cv.skills.title}</h2>
+  <h2>{t($cv, "skills.title")}</h2>
   {#each skillCategories as cat}
     {@const catSkills = skillItems
       .filter((s) => s.category === cat.key)
       .map((s) => {
         const detailsParts: string[] = [];
         if (s.experience) {
-          detailsParts.push(
-            t($cv, `skills.badges.${s.experience.type}`, {
-              count: s.experience.count,
-            }),
+          detailsParts.push(getDurationKeyLabel($cv, s.experience)
           );
         }
         if (s.badgeKeys && s.badgeKeys.length > 0) {
@@ -169,7 +167,7 @@ const sortedExperience = sortByEndDate(experienceItems);
         const details =
           detailsParts.length > 0 ? ` (${detailsParts.join(", ")})` : "";
         return `${s.title}${details}`;
-      })
+      }).filter(s => s && s.trim() !== "").sort((a, b) => a.localeCompare(b))
       .join(", ")}
     {#if catSkills}
       <div class={cn("skills-category")}>
