@@ -22,7 +22,7 @@
     "@internationalized/date": "^3.11.0",
     "@lucide/svelte": "^0.576.0",
     "@neoconfetti/svelte": "^2.2.2",
-    "@sveltejs/adapter-cloudflare": "^7.2.8",
+    "@sveltejs/adapter-vercel": "^6.3.3",
     "@sveltejs/kit": "^2.53.4",
     "@sveltejs/vite-plugin-svelte": "^6.2.4",
     "@tailwindcss/forms": "^0.5.11",
@@ -59,12 +59,12 @@
     "vite-plugin-pwa": "^1.2.0",
     "vite-plugin-qrcode": "^0.3.0",
     "vite-plugin-restart": "^2.0.0",
+    "vite-plus": "latest",
     "workbox-precaching": "^7.4.0",
     "workbox-routing": "^7.4.0",
     "workbox-strategies": "^7.4.0",
     "workbox-window": "^7.4.0",
-    "wrangler": "^4.69.0",
-    "vite-plus": "latest"
+    "wrangler": "^4.69.0"
   },
   "dependencies": {
     "@biomejs/biome": "^2.4.6",
