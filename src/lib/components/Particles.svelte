@@ -1,8 +1,6 @@
 <script lang="ts">
 import { onMount } from "svelte";
 import { cn } from "$lib/utils";
-import { toast } from "svelte-sonner";
-import * as Button from "$lib/components/ui/button";
 
 interface Props {
   class?: string;
@@ -23,15 +21,11 @@ let {
 let canvas: HTMLCanvasElement | null = $state(null);
 let gl: WebGL2RenderingContext | null = $state(null);
 
-// NEU: Ein State, der kontrolliert, ob das Gyroskop aktiv lauschen soll
-let gyroEnabled = $state(false);
-let showGyroButton = $state(false);
-
 let mouse = { x: 0, y: 0 };
 
 let canvasSize = { w: 0, h: 0 };
 
-function handleMouseMove(event: MouseEvent) {
+function handleMouseMove(event: PointerEvent) {
   if (!canvas) return;
 
   const rect = canvas.getBoundingClientRect();
@@ -47,19 +41,6 @@ function handleDeviceOrientation(event: DeviceOrientationEvent) {
   let tiltY = Math.max(-45, Math.min(45, (event.beta || 0) - 45));
   mouse.x = (tiltX / 45) * (rect.width / 2);
   mouse.y = (tiltY / 45) * (rect.height / 2);
-}
-
-function requestGyro() {
-  if (typeof (DeviceOrientationEvent as any).requestPermission === "function") {
-    (DeviceOrientationEvent as any)
-      .requestPermission()
-      .then((state: string) => {
-        if (state === "granted") {
-          gyroEnabled = true; // Svelte aktiviert den Listener jetzt magisch!
-        }
-      })
-      .catch(console.error);
-  }
 }
 
 const vsSource = `#version 300 es
@@ -114,15 +95,6 @@ function handleResize() {
 
 onMount(() => {
   if (!canvas) return;
-
-  if (
-    typeof (DeviceOrientationEvent as any) !== "undefined" &&
-    typeof (DeviceOrientationEvent as any).requestPermission === "function"
-  ) {
-    showGyroButton = true;
-  } else if (window.DeviceOrientationEvent) {
-    gyroEnabled = true; // Android
-  }
 
   gl = canvas.getContext("webgl2", { alpha: true, antialias: true });
 
@@ -262,20 +234,13 @@ onMount(() => {
 </script>
 
 <svelte:window
-  onmousemove={handleMouseMove}
-  ondeviceorientation={gyroEnabled ? handleDeviceOrientation : null}
+  onpointermove={handleMouseMove}
+  ondeviceorientation={handleDeviceOrientation}
   onresize={handleResize}
 />
 
-<div class={cn("absolute inset-0 z-0", className)} aria-hidden="true">
-  <canvas bind:this={canvas} class="w-full h-full block"></canvas>
-
-  {#if showGyroButton}
-    <Button.Root
-      onclick={requestGyro}
-      class={cn("absolute bottom-6 right-6 z-50 rounded-md px-5 py-3 text-sm font-semibold")}
-    >
-      Partikel-Sensor aktivieren
-    </Button.Root>
-  {/if}
-</div>
+<canvas
+  bind:this={canvas}
+  class={cn("fixed inset-0 z-[-1] no-print animate-fade-in pointer-events-none", className)}
+  aria-hidden="true"
+></canvas>
