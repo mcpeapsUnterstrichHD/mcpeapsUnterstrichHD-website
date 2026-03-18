@@ -2,6 +2,7 @@
 import { onMount } from "svelte";
 import { cn } from "$lib/utils";
 import { toast } from "svelte-sonner";
+import { Button } from "$lib/components/ui/button";
 
 interface Props {
   class?: string;
@@ -24,6 +25,7 @@ let gl: WebGL2RenderingContext | null = $state(null);
 
 // NEU: Ein State, der kontrolliert, ob das Gyroskop aktiv lauschen soll
 let gyroEnabled = $state(false);
+let showGyroButton = $state(false);
 
 let mouse = { x: 0, y: 0 };
 
@@ -117,18 +119,9 @@ onMount(() => {
     typeof (DeviceOrientationEvent as any) !== "undefined" &&
     typeof (DeviceOrientationEvent as any).requestPermission === "function"
   ) {
-    toast(
-      "Gyroskop-Daten sind verfügbar! Möchtest du die Partikel mit deinem Gerät steuern?",
-      {
-        action: {
-          label: "Ja, aktivieren",
-          onClick: requestGyro,
-        },
-        duration: Number.POSITIVE_INFINITY,
-      },
-    );
+    showGyroButton = true;
   } else if (window.DeviceOrientationEvent) {
-    gyroEnabled = true; // Android -> Darf direkt zuhören
+    gyroEnabled = true; // Android
   }
 
   gl = canvas.getContext("webgl2", { alpha: true, antialias: true });
@@ -274,8 +267,15 @@ onMount(() => {
   onresize={handleResize}
 />
 
-<canvas
-  bind:this={canvas}
-  class={cn("fixed inset-0 z-[-1] no-print animate-fade-in pointer-events-none", className)}
-  aria-hidden="true"
-></canvas>
+<div class={cn("absolute inset-0 z-0", className)} aria-hidden="true">
+  <canvas bind:this={canvas} class="w-full h-full block"></canvas>
+
+  {#if showGyroButton}
+    <Button.Root
+      onclick={requestGyro}
+      class={cn("absolute bottom-6 right-6 z-50 rounded-md px-5 py-3 text-sm font-semibold")}
+    >
+      Partikel-Sensor aktivieren
+    </Button.Root>
+  {/if}
+</div>
