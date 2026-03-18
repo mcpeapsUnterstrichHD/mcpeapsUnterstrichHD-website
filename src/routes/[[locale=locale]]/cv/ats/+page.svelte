@@ -62,19 +62,19 @@ const sortedExperience = sortByEndDate(experienceItems);
 <div class={cn("ats-cv")}>
   <div>
     <div class={cn("text-center pb-2")}>
-      <h1 class={cn("text-4xl md:text-5xl font-bold")}>{t($aboutme, "name")}</h1>
-      <p class={cn("text-xl text-muted-foreground")}>{t($cv, "about.title")}</p>
+      <h1 class={cn("font-bold")}>{t($aboutme, "name")}</h1>
+      <p class={cn("subtitle text-muted-foreground")}>{t($cv, "about.title")}</p>
     </div>
     <div>
       <div
-        class={cn("justify-center grid grid-cols-1 md:grid-cols-2 gap-6 text-base")}
+        class={cn("justify-center grid grid-cols-1 md:grid-cols-2 gap-6 text-base contact-info")}
       >
         <!-- Contact Info -->
         <div class={cn("flex flex-col gap-2")}>
-          <p class={cn("flex items-center gap-2 hover:text-primary transition-colors")}>
+          <p class={cn("flex items-center gap-2 ")}>
             Email: {contactDetails.email.display}
           </p>
-          <p class={cn("flex items-center gap-2 hover:text-primary transition-colors")}>
+          <p class={cn("flex items-center gap-2")}>
             {t($contact, "mobilephone")}: {contactDetails.telephone.display}
           </p>
           <div class={cn("flex items-center gap-2 text-muted-foreground")}>
@@ -83,7 +83,7 @@ const sortedExperience = sortByEndDate(experienceItems);
         </div>
         <!-- Address -->
         <div class={cn("flex flex-col gap-2")}>
-          <p class={cn("flex items-start gap-2 hover:text-primary transition-colors")}>
+          <p class={cn("flex items-start gap-2")}>
             {t($contact, "address")}:
             <span>
               {contactDetails.address.street}<br />
@@ -190,7 +190,7 @@ const sortedExperience = sortByEndDate(experienceItems);
     margin-bottom: 12px;
   }
   .ats-cv .contact-info {
-    text-align: center;
+    text-align: left;
     margin-bottom: 16px;
     font-size: 10pt;
   }
