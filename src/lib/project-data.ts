@@ -49,7 +49,7 @@ export const projectsData: ProjectItem[] = [
     image: "/pictures/projects/my_Portfolio.png",
     bgColor: "",
     badges: ["FOSS", "WEB", "NEW"],
-    link: "https://github.com/mcpeapsUnterstrichHD/mcpeapsUnterstrichHD",
+    link: "https://github.com/mcpeapsUnterstrichHD/mcpeapsUnterstrichHD-website",
     pinned: true,
   },
   {
