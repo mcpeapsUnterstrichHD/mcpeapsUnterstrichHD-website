@@ -8,7 +8,6 @@ const config: Config = {
     serviceWorker: {
       register: true,
       options: {
-        scope: "service-worker/index.js",
         type: "module",
         updateViaCache: "all",
       },
