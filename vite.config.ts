@@ -82,6 +82,7 @@ export default defineConfig({
     allowedHosts: ["localhost", "mahd-mbp"],
   },
   build: {
+    modulePreload: true,
     target: "esnext",
     minify: true,
     cssMinify: true,

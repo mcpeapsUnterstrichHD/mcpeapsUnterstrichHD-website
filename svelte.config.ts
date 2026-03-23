@@ -18,8 +18,8 @@ const config: Config = {
     inspector: true,
   },
   compilerOptions: {
-    dev: true,
-    hmr: true,
+    dev: process.env.NODE_ENV === "development",
+    hmr: process.env.NODE_ENV === "development",
   },
   prebundleSvelteLibraries: true,
 };
