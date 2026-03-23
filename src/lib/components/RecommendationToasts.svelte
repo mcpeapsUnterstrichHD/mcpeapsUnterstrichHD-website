@@ -22,7 +22,7 @@ import { onMount } from "svelte";
 import { toast } from "svelte-sonner";
 import { goto } from "$app/navigation";
 import { useIntlayer, useLocale } from "svelte-intlayer";
-import { getLocalizedUrl, type Locale } from "intlayer";
+import { getLocalizedUrl, t } from "$lib/i18n";
 import { createWebHaptics } from "web-haptics/svelte";
 import { onDestroy } from "svelte";
 const { trigger, destroy } = createWebHaptics();
@@ -43,53 +43,53 @@ let currentIndex = 0;
  */
 let recommendations = $derived([
   {
-    title: $recommendation.projects.title as unknown as string,
-    description: $recommendation.projects.description as unknown as string,
-    href: getLocalizedUrl("/projects", $locale as Locale),
+    title: t($recommendation, "projects.title"),
+    description: t($recommendation, "projects.description"),
+    href: getLocalizedUrl("/projects", $locale),
   },
   {
-    title: $recommendation.aboutme.title as unknown as string,
-    description: $recommendation.aboutme.description as unknown as string,
-    href: getLocalizedUrl("/aboutme", $locale as Locale),
+    title: t($recommendation, "aboutme.title"),
+    description: t($recommendation, "aboutme.description"),
+    href: getLocalizedUrl("/aboutme", $locale),
   },
   {
-    title: $recommendation.cv.title as unknown as string,
-    description: $recommendation.cv.description as unknown as string,
-    href: getLocalizedUrl("/cv", $locale as Locale),
+    title: t($recommendation, "cv.title"),
+    description: t($recommendation, "cv.description"),
+    href: getLocalizedUrl("/cv", $locale),
   },
   {
-    title: $recommendation.linkhub.title as unknown as string,
-    description: $recommendation.linkhub.description as unknown as string,
-    href: getLocalizedUrl("/linkhub", $locale as Locale),
+    title: t($recommendation, "linkhub.title"),
+    description: t($recommendation, "linkhub.description"),
+    href: getLocalizedUrl("/linkhub", $locale),
   },
   {
-    title: $recommendation.github.title as unknown as string,
-    description: $recommendation.github.description as unknown as string,
+    title: t($recommendation, "github.title"),
+    description: t($recommendation, "github.description"),
     external: "https://github.com/mcpeapsUnterstrichHD",
   },
   {
-    title: $recommendation.twitter.title as unknown as string,
-    description: $recommendation.twitter.description as unknown as string,
+    title: t($recommendation, "twitter.title"),
+    description: t($recommendation, "twitter.description"),
     external: "https://x.com/mcpeaps_HD",
   },
   {
-    title: $recommendation.instagram.title as unknown as string,
-    description: $recommendation.instagram.description as unknown as string,
+    title: t($recommendation, "instagram.title"),
+    description: t($recommendation, "instagram.description"),
     external: "https://instagram.com/mcpeaps_hd",
   },
   {
-    title: $recommendation.tiktok.title as unknown as string,
-    description: $recommendation.tiktok.description as unknown as string,
+    title: t($recommendation, "tiktok.title"),
+    description: t($recommendation, "tiktok.description"),
     external: "https://tiktok.com/@mcpeaps_hd",
   },
   {
-    title: $recommendation.threads.title as unknown as string,
-    description: $recommendation.threads.description as unknown as string,
+    title: t($recommendation, "threads.title"),
+    description: t($recommendation, "threads.description"),
     external: "https://threads.com/@mcpeaps_hd",
   },
   {
-    title: $recommendation.bluesky.title as unknown as string,
-    description: $recommendation.bluesky.description as unknown as string,
+    title: t($recommendation, "bluesky.title"),
+    description: t($recommendation, "bluesky.description"),
     external: "https://bsky.mcpeapsunterstrichhd.dev",
   },
 ]);

@@ -66,7 +66,7 @@ $effect(() => {
  */
 let canonicalUrl = $derived.by(() => {
   const path = page.url.pathname.replace(/\/$/, "") || "/";
-  return `${page.url.protocol}//${page.url.host}/${path}`;
+  return `${page.url.protocol}//${page.url.host}${path}`;
 });
 
 /**
@@ -100,7 +100,7 @@ let pathForAlternates = $derived.by(() => {
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
 
   <!-- Canonical & hreflang -->
-  <link rel="canonical" href="{page.url.protocol}//{page.url.host}{canonicalUrl}" />
+  <link rel="canonical" href={canonicalUrl} />
   <link rel="alternate" hreflang="x-default" href="{page.url.protocol}//{page.url.host}{pathForAlternates}" />
   {#each languages as lang}
     <link rel="alternate" hreflang={lang.code} href="{page.url.protocol}//{page.url.host}/{lang.code}{pathForAlternates === '/' ? '' : pathForAlternates}" />
