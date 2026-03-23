@@ -26,7 +26,7 @@ export default defineConfig({
       autoInstall: true, // Auto-detects npm/yarn/pnpm
     }),
     ViteRestart({
-      restart: ["src/**/*"],
+      restart: ["src/**/*", "svelte.config.ts", "vite.config.ts"],
     }),
     tailwindcss(),
     sveltekit(),

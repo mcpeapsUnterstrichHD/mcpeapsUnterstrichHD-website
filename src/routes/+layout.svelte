@@ -49,11 +49,11 @@ import { fly, fade } from "svelte/transition";
 import { cubicOut, cubicIn } from "svelte/easing";
 import { cn } from "$lib/utils";
 import { pwaAssetsHead } from "virtual:pwa-assets/head";
-import { injectSpeedInsights } from '@vercel/speed-insights/sveltekit';
-import { dev } from '$app/environment';
-import { injectAnalytics } from '@vercel/analytics/sveltekit';
+import { injectSpeedInsights } from "@vercel/speed-insights/sveltekit";
+import { dev } from "$app/environment";
+import { injectAnalytics } from "@vercel/analytics/sveltekit";
 
-injectAnalytics({ mode: dev ? 'development' : 'production' });
+injectAnalytics({ mode: dev ? "development" : "production" });
 
 injectSpeedInsights();
 
@@ -62,14 +62,13 @@ let { children }: { children: Snippet } = $props();
 
 <svelte:head>
 <meta charset="utf-8" />
+<link rel="manifest" href="/manifest.webmanifest" data-sveltekit-preload-code  data-sveltekit-preload-data/>
   {#if pwaAssetsHead.themeColor}
     <meta name="theme-color" content={pwaAssetsHead.themeColor.content} />
   {/if}
   {#each pwaAssetsHead.links as link}
     <link rel={link.rel} href={"/pictures" + link.href} data-sveltekit-preload-code  data-sveltekit-preload-data/>
   {/each}
-  <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-  <link rel="manifest" href="/manifest.webmanifest" data-sveltekit-preload-code  data-sveltekit-preload-data/>
 </svelte:head>
 
 <ModeWatcher defaultMode="dark" />
