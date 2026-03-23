@@ -63,11 +63,13 @@ let { children }: { children: Snippet } = $props();
 <svelte:head>
 <meta charset="utf-8" />
 <link rel="manifest" href="/manifest.webmanifest" data-sveltekit-preload-code  data-sveltekit-preload-data/>
+<link rel="robots" href="/robots.txt" data-sveltekit-preload-code  data-sveltekit-preload-data/>
+<link rel="sitemap" href="/sitemap.xml" data-sveltekit-preload-code  data-sveltekit-preload-data/>
   {#if pwaAssetsHead.themeColor}
     <meta name="theme-color" content={pwaAssetsHead.themeColor.content} />
   {/if}
   {#each pwaAssetsHead.links as link}
-    <link rel={link.rel} href={"/pictures" + link.href} data-sveltekit-preload-code  data-sveltekit-preload-data/>
+    <link rel={link.rel} href={"/pictures" + link.href} media={link.media} sizes={link.sizes} id={link.id} type={link.type} data-sveltekit-preload-code  data-sveltekit-preload-data/>
   {/each}
 </svelte:head>
 

@@ -3,6 +3,7 @@
 
 declare let self: ServiceWorkerGlobalScope;
 
+import { navigating } from "$app/state";
 import { build, files, version } from "$service-worker";
 
 const CACHE = `cache-${version}`;
@@ -20,6 +21,7 @@ self.addEventListener("install", (event) => {
     try {
       // Versuch 1: Alles auf einmal laden (schneller)
       await cache.addAll(ASSETS);
+      await nav;
     } catch (err) {
       console.warn(
         "cache.addAll schlug fehl. Versuche Dateien einzeln zu laden...",
@@ -81,7 +83,7 @@ self.addEventListener("fetch", (event) => {
       }
 
       return response;
-    } catch {
+    } catch (e) {
       // fallback  to cache
 
       const cachedResponse = await cache.match(event.request);
@@ -89,6 +91,7 @@ self.addEventListener("fetch", (event) => {
     }
     return new Response("Not found", {
       status: 404,
+      statusText: `Not found ${url.pathname}`,
     });
   }
 

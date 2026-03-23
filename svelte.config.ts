@@ -7,6 +7,11 @@ const config: Config = {
     adapter: adapter(),
     serviceWorker: {
       register: true,
+      options: {
+        scope: "service-worker/index.js",
+        type: "module",
+        updateViaCache: "all",
+      },
     },
   },
   preprocess: [
