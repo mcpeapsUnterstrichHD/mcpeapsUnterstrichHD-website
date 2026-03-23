@@ -31,8 +31,7 @@ export default defineConfig({
     tailwindcss(),
     sveltekit(),
     SvelteKitPWA({
-      injectRegister: false,
-      strategies: "generateSW", // Spielt keine Rolle mehr, wenn injectRegister false ist
+      disable: true,
       pwaAssets: {
         integration: {
           publicDir: "static/",
@@ -82,6 +81,7 @@ export default defineConfig({
     allowedHosts: ["localhost", "mahd-mbp"],
   },
   build: {
+    modulePreload: true,
     target: "esnext",
     minify: true,
     cssMinify: true,

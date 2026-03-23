@@ -115,7 +115,7 @@ const isMobile = new IsMobile();
 const isTablet = new IsTablet();
 </script>
 
-<footer id="footer" class={cn("w-full z-10 print:hidden no-print mt-auto p-2 pb-[calc(5rem+env(safe-area-inset-bottom,0px))] lg:pb-2")}>
+<footer id="footer" class={cn("w-full z-10 print:hidden mt-auto p-2 pb-[calc(5rem+env(safe-area-inset-bottom,0px))] lg:pb-2")}>
   <div class={cn("my-glass rounded-sm")}>
     <div class={cn("mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 lg:py-12")}>
       <!-- Main Footer Content -->

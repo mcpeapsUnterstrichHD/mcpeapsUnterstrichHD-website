@@ -7,6 +7,11 @@ const config: Config = {
     adapter: adapter(),
     serviceWorker: {
       register: true,
+      options: {
+        scope: "service-worker/index.js",
+        type: "module",
+        updateViaCache: "all",
+      },
     },
   },
   preprocess: [
@@ -18,8 +23,8 @@ const config: Config = {
     inspector: true,
   },
   compilerOptions: {
-    dev: true,
-    hmr: true,
+    dev: process.env.NODE_ENV === "development",
+    hmr: process.env.NODE_ENV === "development",
   },
   prebundleSvelteLibraries: true,
 };
