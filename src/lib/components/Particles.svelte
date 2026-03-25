@@ -1,37 +1,35 @@
 <script lang="ts">
 import { onMount } from "svelte";
 import { cn } from "$lib/utils";
+import { page } from "$app/state"; // <-- Nativer SvelteKit Store
 
 interface Props {
   class?: string;
   quantity?: number;
-  staticity?: number;
-  ease?: number;
-  refresh?: boolean;
 }
 
-let {
-  class: className = "",
-  quantity = 120,
-  staticity = 50,
-  ease = 20,
-  refresh = true,
-}: Props = $props();
+let { class: className = "", quantity = 120 }: Props = $props();
 
 let canvas: HTMLCanvasElement | null = $state(null);
 let gl: WebGL2RenderingContext | null = $state(null);
 
 let mouse = { x: 0, y: 0 };
-
 let canvasSize = { w: 0, h: 0 };
+
+// --- WASM & Engine State ---
+let wasmInstance: WebAssembly.Instance | null = null;
+let enginePtr: number = 0;
+let heapBase = 1024;
+let frameHeapBase = 1024; // Speichert den Speicher-Startpunkt für jeden Frame
+let m_idx = 0,
+  f_idx = 0,
+  r_idx = 0;
 
 function handleMouseMove(event: PointerEvent) {
   if (!canvas) return;
-
   const rect = canvas.getBoundingClientRect();
-
-  mouse.x = event.clientX - rect.left - rect.width / 2;
-  mouse.y = event.clientY - rect.top - rect.height / 2;
+  mouse.x = event.clientX - rect.left;
+  mouse.y = event.clientY - rect.top;
 }
 
 function handleDeviceOrientation(event: DeviceOrientationEvent) {
@@ -39,69 +37,63 @@ function handleDeviceOrientation(event: DeviceOrientationEvent) {
   const rect = canvas.getBoundingClientRect();
   let tiltX = Math.max(-45, Math.min(45, event.gamma || 0));
   let tiltY = Math.max(-45, Math.min(45, (event.beta || 0) - 45));
-  mouse.x = (tiltX / 45) * (rect.width / 2);
-  mouse.y = (tiltY / 45) * (rect.height / 2);
+  mouse.x = rect.width / 2 + (tiltX / 45) * (rect.width / 2);
+  mouse.y = rect.height / 2 + (tiltY / 45) * (rect.height / 2);
+}
+
+function handleResize() {
+  if (!canvas) return;
+  const dpr = window.devicePixelRatio || 1;
+  canvasSize.w = window.innerWidth;
+  canvasSize.h = window.innerHeight;
+  canvas.width = canvasSize.w * dpr;
+  canvas.height = canvasSize.h * dpr;
+  canvas.style.width = `${canvasSize.w}px`;
+  canvas.style.height = `${canvasSize.h}px`;
+}
+
+function writeWasmString(str: string): number {
+  if (!wasmInstance) return 0;
+  const encoder = new TextEncoder();
+  const buf = encoder.encode(str + "\0");
+  const ptr = heapBase;
+  heapBase = (heapBase + buf.length + 7) & ~7;
+  const mem = new Uint8Array(
+    (wasmInstance.exports.memory as WebAssembly.Memory).buffer,
+  );
+  mem.set(buf, ptr);
+  return ptr;
 }
 
 const vsSource = `#version 300 es
   in vec2 a_position;
   in vec4 a_color;
   in float a_size;
-
   uniform vec2 u_resolution;
-
   out vec4 v_color;
-
   void main() {
     vec2 zeroToOne = a_position / u_resolution;
     vec2 clipSpace = (zeroToOne * 2.0) - 1.0;
-
     gl_Position = vec4(clipSpace * vec2(1, -1), 0.0, 1.0);
     gl_PointSize = a_size;
     v_color = a_color;
-  }
-  `;
+  }`;
 
 const fsSource = `#version 300 es
   precision mediump float;
-
   in vec4 v_color;
   out vec4 outColor;
-
   void main() {
     float dist = distance(gl_PointCoord, vec2(0.5)) * 2.0;
     float alpha = 1.0 - smoothstep(0.8, 1.0, dist);
-
     if (dist > 1.0) discard;
-
     outColor = vec4(v_color.rgb, v_color.a * alpha);
-  }
-  `;
-
-function handleResize() {
-  if (!canvas) return;
-
-  const dpr = window.devicePixelRatio || 1;
-
-  canvasSize.w = window.innerWidth;
-  canvasSize.h = window.innerHeight;
-
-  canvas.width = canvasSize.w * dpr;
-  canvas.height = canvasSize.h * dpr;
-
-  canvas.style.width = `${canvasSize.w}px`;
-  canvas.style.height = `${canvasSize.h}px`;
-}
+  }`;
 
 onMount(() => {
   if (!canvas) return;
-
   gl = canvas.getContext("webgl2", { alpha: true, antialias: true });
-
-  if (!gl) {
-    console.error("WebGL2 not supported");
-    return;
-  }
+  if (!gl) return;
 
   handleResize();
 
@@ -121,126 +113,256 @@ onMount(() => {
   const sizeLoc = gl.getAttribLocation(program, "a_size");
   const resLoc = gl.getUniformLocation(program, "u_resolution");
 
-  const floatsPerParticle = 7;
-  const particleData = new Float32Array(quantity * floatsPerParticle);
-
-  const nord11 = [191 / 255, 97 / 255, 106 / 255];
-  const nord14 = [163 / 255, 190 / 255, 140 / 255];
-
-  const circles = Array.from({ length: quantity }, () => {
-    const isRed = Math.random() > 0.5;
-    return {
-      x: Math.random() * (window.innerWidth || 1000),
-      y: Math.random() * (window.innerHeight || 1000),
-      translateX: 0,
-      translateY: 0,
-      dx: (Math.random() - 0.5) * 0.5,
-      dy: (Math.random() - 0.5) * 0.5,
-      magnetism: 0.1 + Math.random() * 4,
-      size: Math.random() * 2 + 3,
-      color: isRed ? nord11 : nord14,
-      targetAlpha: Math.random() * 0.5 + 0.2,
-    };
-  });
-
-  const buffer = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-  gl.bufferData(gl.ARRAY_BUFFER, particleData.byteLength, gl.DYNAMIC_DRAW);
-
-  const stride = floatsPerParticle * 4;
-  gl.enableVertexAttribArray(posLoc);
-  gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, stride, 0);
-  gl.enableVertexAttribArray(colorLoc);
-  gl.vertexAttribPointer(colorLoc, 4, gl.FLOAT, false, stride, 2 * 4);
-  gl.enableVertexAttribArray(sizeLoc);
-  gl.vertexAttribPointer(sizeLoc, 1, gl.FLOAT, false, stride, 6 * 4);
-
   let animationFrameId: number;
+  let particleData = new Float32Array(quantity * 7);
+  let lastTime = performance.now();
 
-  function render() {
-    // Nur zeichnen, wenn das Canvas auch wirklich eine Größe hat
-    if (canvasSize.w === 0 || canvasSize.h === 0) {
+  fetch("/wasm/cbps_we_core.wasm")
+    .then((res) => res.arrayBuffer())
+    .then((bytes) => WebAssembly.instantiate(bytes, { env: {} }))
+    .then(({ instance }) => {
+      wasmInstance = instance;
+
+      const table = (instance.exports.__indirect_function_table ||
+        instance.exports.table) as WebAssembly.Table;
+      if (!table) {
+        console.error("🔥 VERFÜGBARE WASM EXPORTS:", instance.exports);
+        alert(
+          "WASM Tabelle fehlt! Hast du nach 'just wasm' einen Hard-Refresh (Cmd+Shift+R) gemacht?",
+        );
+        return;
+      }
+
+      m_idx = table.length;
+      table.grow(3);
+
+      f_idx = m_idx + 1;
+      r_idx = m_idx + 2;
+
+      // 1. Unsere puren JavaScript-Funktionen
+      const jsMalloc = (size: number) => {
+        let ptr = heapBase;
+        heapBase = (heapBase + size + 7) & ~7;
+        return ptr;
+      };
+
+      const jsFree = (ptr: number) => {};
+
+      const jsRand = () => Math.floor(Math.random() * 2147483647);
+
+      // 2. SAFARI-HACK: Wir schreiben die rohen Bytes für ein 60-Byte Wasm-Modul!
+      // Dieses Modul importiert unsere JS-Funktionen und exportiert sie als Wasm-Funktionen.
+      const wrapperBytes = new Uint8Array([
+        0x00,
+        0x61,
+        0x73,
+        0x6d,
+        0x01,
+        0x00,
+        0x00,
+        0x00, // Magic & Version
+        0x01,
+        0x0e,
+        0x03,
+        0x60,
+        0x01,
+        0x7f,
+        0x01,
+        0x7f, // Type 0 (malloc)
+        0x60,
+        0x01,
+        0x7f,
+        0x00,
+        0x60,
+        0x00,
+        0x01,
+        0x7f, // Type 1 (free), Type 2 (rand)
+        0x02,
+        0x19,
+        0x03,
+        0x03,
+        0x65,
+        0x6e,
+        0x76,
+        0x01, // Import: env.m
+        0x6d,
+        0x00,
+        0x00,
+        0x03,
+        0x65,
+        0x6e,
+        0x76,
+        0x01, // Import: env.f
+        0x66,
+        0x00,
+        0x01,
+        0x03,
+        0x65,
+        0x6e,
+        0x76,
+        0x01, // Import: env.r
+        0x72,
+        0x00,
+        0x02,
+        0x07,
+        0x0d,
+        0x03,
+        0x01,
+        0x6d, // Exports...
+        0x00,
+        0x00,
+        0x01,
+        0x66,
+        0x00,
+        0x01,
+        0x01,
+        0x72,
+        0x00,
+        0x02,
+      ]);
+
+      // 3. Modul kompilieren und unsere JS-Funktionen hineinreichen (dauert 0.1 Millisekunden)
+      const wrapperMod = new WebAssembly.Module(wrapperBytes);
+      const wrapperInst = new WebAssembly.Instance(wrapperMod, {
+        env: { m: jsMalloc, f: jsFree, r: jsRand },
+      });
+
+      // JETZT sind es "echte" Wasm-Funktionen und Safari liebt sie!
+      table.set(m_idx, wrapperInst.exports.m as Function);
+      table.set(f_idx, wrapperInst.exports.f as Function);
+      table.set(r_idx, wrapperInst.exports.r as Function);
+
+      // --- AB HIER WIE GEWOHNT WEITER ---
+      let h1Ptr = writeWasmString("");
+      let h2Ptr = writeWasmString("");
+
+      enginePtr = (instance.exports.cbps_engine_create as Function)(
+        canvasSize.w,
+        canvasSize.h,
+        quantity,
+        h1Ptr,
+        h2Ptr,
+        m_idx,
+        f_idx,
+        r_idx,
+      );
+
+      frameHeapBase = heapBase;
+
+      const buffer = gl!.createBuffer();
+      gl!.bindBuffer(gl!.ARRAY_BUFFER, buffer);
+      gl!.bufferData(
+        gl!.ARRAY_BUFFER,
+        particleData.byteLength,
+        gl!.DYNAMIC_DRAW,
+      );
+
+      const stride = 7 * 4;
+      gl!.enableVertexAttribArray(posLoc);
+      gl!.vertexAttribPointer(posLoc, 2, gl!.FLOAT, false, stride, 0);
+      gl!.enableVertexAttribArray(colorLoc);
+      gl!.vertexAttribPointer(colorLoc, 4, gl!.FLOAT, false, stride, 8);
+      gl!.enableVertexAttribArray(sizeLoc);
+      gl!.vertexAttribPointer(sizeLoc, 1, gl!.FLOAT, false, stride, 24);
+
+      function render(time: number) {
+        if (canvasSize.w === 0 || canvasSize.h === 0) {
+          animationFrameId = requestAnimationFrame(render);
+          return;
+        }
+
+        const delta = (time - lastTime) / 1000.0;
+        lastTime = time;
+
+        const memView = new DataView(
+          (wasmInstance!.exports.memory as WebAssembly.Memory).buffer,
+        );
+
+        // 1. SPEICHER ZURÜCKSETZEN & TEXTE LADEN
+        heapBase = frameHeapBase;
+        let dynH1Ptr = writeWasmString("");
+        let dynH2Ptr = writeWasmString("");
+
+        // 2. UPDATE AUFRUFEN (Mit exakt 11 Parametern, wie es C erwartet!)
+        (wasmInstance!.exports.cbps_engine_update as Function)(
+          enginePtr,
+          delta,
+          dynH1Ptr,
+          dynH2Ptr,
+          canvasSize.w,
+          canvasSize.h,
+          Math.round(mouse.x), // Maus X direkt als Argument
+          Math.round(mouse.y), // Maus Y direkt als Argument
+          m_idx,
+          f_idx,
+          r_idx,
+        );
+
+        // 3. PARTIKEL AUSLESEN
+        const particlesArrayPtr = memView.getUint32(enginePtr + 0, true);
+
+        for (let i = 0; i < quantity; i++) {
+          const pBase = particlesArrayPtr + i * 36;
+
+          const p_x = memView.getFloat32(pBase + 0, true);
+          const p_y = memView.getFloat32(pBase + 4, true);
+          const p_tx = memView.getFloat32(pBase + 8, true);
+          const p_ty = memView.getFloat32(pBase + 12, true);
+          const p_radius = memView.getInt32(pBase + 28, true);
+          const r = memView.getUint8(pBase + 32);
+          const g = memView.getUint8(pBase + 33);
+          const b = memView.getUint8(pBase + 34);
+          const a = memView.getUint8(pBase + 35);
+
+          const idx = i * 7;
+          particleData[idx + 0] = (p_x + p_tx) * window.devicePixelRatio;
+          particleData[idx + 1] = (p_y + p_ty) * window.devicePixelRatio;
+          particleData[idx + 2] = r / 255.0;
+          particleData[idx + 3] = g / 255.0;
+          particleData[idx + 4] = b / 255.0;
+          particleData[idx + 5] = a / 255.0;
+          particleData[idx + 6] = p_radius * 2.0 * window.devicePixelRatio;
+        }
+
+        // 4. ZEICHNEN
+        gl!.bindBuffer(gl!.ARRAY_BUFFER, buffer);
+        gl!.bufferSubData(gl!.ARRAY_BUFFER, 0, particleData);
+        gl!.viewport(0, 0, canvas!.width, canvas!.height);
+        gl!.clearColor(0, 0, 0, 0);
+        gl!.clear(gl!.COLOR_BUFFER_BIT);
+        gl!.useProgram(program);
+        gl!.uniform2f(resLoc, canvas!.width, canvas!.height);
+        gl!.enable(gl!.BLEND);
+        gl!.blendFunc(gl!.SRC_ALPHA, gl!.ONE_MINUS_SRC_ALPHA);
+        gl!.drawArrays(gl!.POINTS, 0, quantity);
+
+        animationFrameId = requestAnimationFrame(render);
+      }
+
       animationFrameId = requestAnimationFrame(render);
-      return;
-    }
-
-    for (let i = 0; i < quantity; i++) {
-      const p = circles[i];
-
-      p.x += p.dx;
-      p.y += p.dy;
-      p.translateX +=
-        ((mouse.x / staticity) * p.magnetism - p.translateX) / ease;
-      p.translateY +=
-        ((mouse.y / staticity) * p.magnetism - p.translateY) / ease;
-
-      // Dynamischer Respawn anhand der echten Canvas-Größe
-      if (p.x < -10 || p.x > canvasSize.w + 10) {
-        p.x = p.x < 0 ? canvasSize.w + 10 : -10;
-        p.translateX = 0;
-      }
-      if (p.y < -10 || p.y > canvasSize.h + 10) {
-        p.y = p.y < 0 ? canvasSize.h + 10 : -10;
-        p.translateY = 0;
-      }
-
-      const edgeX = Math.min(
-        p.x + p.translateX,
-        canvasSize.w - (p.x + p.translateX),
-      );
-      const edgeY = Math.min(
-        p.y + p.translateY,
-        canvasSize.h - (p.y + p.translateY),
-      );
-      const dist = Math.min(edgeX, edgeY);
-      let drawAlpha = p.targetAlpha;
-      if (dist < 50) {
-        drawAlpha = p.targetAlpha * Math.max(0, dist / 50);
-      }
-
-      const idx = i * floatsPerParticle;
-      particleData[idx + 0] = (p.x + p.translateX) * window.devicePixelRatio;
-      particleData[idx + 1] = (p.y + p.translateY) * window.devicePixelRatio;
-      particleData[idx + 2] = p.color[0];
-      particleData[idx + 3] = p.color[1];
-      particleData[idx + 4] = p.color[2];
-      particleData[idx + 5] = drawAlpha;
-      particleData[idx + 6] = p.size * 2.0 * window.devicePixelRatio;
-    }
-
-    gl!.bindBuffer(gl!.ARRAY_BUFFER, buffer);
-    gl!.bufferSubData(gl!.ARRAY_BUFFER, 0, particleData);
-
-    // NEU UND WICHTIG: Viewport-Größe an aktuelle physische Auflösung anpassen
-    gl!.viewport(0, 0, canvas!.width, canvas!.height);
-
-    gl!.clearColor(0, 0, 0, 0);
-    gl!.clear(gl!.COLOR_BUFFER_BIT);
-    gl!.useProgram(program);
-    gl!.uniform2f(resLoc, canvas!.width, canvas!.height);
-    gl!.enable(gl!.BLEND);
-    gl!.blendFunc(gl!.SRC_ALPHA, gl!.ONE_MINUS_SRC_ALPHA);
-    gl!.drawArrays(gl!.POINTS, 0, quantity);
-
-    animationFrameId = requestAnimationFrame(render);
-  }
-  render();
+    })
+    .catch((err) => {
+      console.error("🔥 KRITISCHER WASM FEHLER:", err);
+    });
 
   return () => {
-    cancelAnimationFrame(animationFrameId);
-    gl!.deleteProgram(program);
+    if (animationFrameId) cancelAnimationFrame(animationFrameId);
+    if (enginePtr && wasmInstance) {
+      (wasmInstance.exports.cbps_engine_destroy as Function)(enginePtr, f_idx);
+    }
+    if (program) gl!.deleteProgram(program);
   };
 });
 </script>
 
 <svelte:window
-  onpointermove={handleMouseMove}
-  ondeviceorientation={handleDeviceOrientation}
-  onresize={handleResize}
+onpointermove={handleMouseMove}
+ondeviceorientation={handleDeviceOrientation}
+onresize={handleResize}
 />
 
 <canvas
   bind:this={canvas}
-  class={cn("fixed inset-0 z-[-1] no-print animate-fade-in pointer-events-none", className)}
+  class={cn("fixed inset-0 w-full h-full z-[-1] no-print animate-fade-in pointer-events-none", className)}
   aria-hidden="true"
 ></canvas>
