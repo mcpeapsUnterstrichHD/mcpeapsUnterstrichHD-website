@@ -70,7 +70,7 @@ All the content of the portfolio is stored in `.ts` files, making it easy to cus
 
 All text content, such as your name, bio, projects, and contact information, is located in the `src/lib/content/` directory. Each file corresponds to a different section of the website.
 
-For example, to change the "About Me" section, edit the `src/lib/content/Aboutme.content.ts` file. To add or update your projects, modify`src/lib/content/Projects.content.ts`.
+For example, to change the "About Me" section, edit the `src/lib/content/Aboutme.content.ts` file. To add or update your projects, modify `src/lib/content/Projects.content.ts`.
 
 Here are some of the key files you might want to edit:
 
@@ -254,3 +254,7 @@ These are custom files outside the shadcn-svelte component tree:
 - `src/app.css` — all glass material utilities and data-slot overrides
 
 </details>
+
+# Getting the WASM file
+
+the wasm file is from the Repo [comboomPunkTsucht/comboom_punkt_sucht_native_wallpaper](https://github.com/comboomPunkTsucht/comboom_punkt_sucht_native_wallpaper.git):  [c149869](https://github.com/comboomPunkTsucht/comboom_punkt_sucht_native_wallpaper/commit/c14986939263e2f3252815ec82a44429cd331792)
