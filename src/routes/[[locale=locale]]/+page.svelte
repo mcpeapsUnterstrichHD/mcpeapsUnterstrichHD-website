@@ -57,6 +57,8 @@ const recommendation = useIntlayer("recommendation");
       {$aboutme.hello} 󱠢 {$aboutme.iam}
     </div>
 
+    <div class="w-[85vw] max-w-7xl shrink-0 rounded-full" style="height: 3px; background: linear-gradient(to right, #2e3440, #eceff4, #2e3440);"></div>
+
     <!-- Animated Name with Gradient -->
     <AuroraText
       class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold rounded-sm"
@@ -65,6 +67,8 @@ const recommendation = useIntlayer("recommendation");
     >
       {$aboutme.name}
     </AuroraText>
+
+    <div class="w-[85vw] max-w-7xl shrink-0 rounded-full" style="height: 3px; background: linear-gradient(to right, #2e3440, #eceff4, #2e3440);"></div>
 
     <!-- Animated Title/Tagline -->
     <div class="text-2xl md:text-3xl lg:text-4xl text-muted-foreground mt-4">
