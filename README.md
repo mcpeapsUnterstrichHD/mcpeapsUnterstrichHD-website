@@ -217,19 +217,6 @@ $effect(() => {
 });
 ```
 
-#### `src/lib/components/ui/button/button.svelte`
-
-Restore Apple HIG 44pt touch targets for small buttons:
-
-```diff
- size: {
--  sm: "h-8 gap-1.5 rounded-md px-3 has-[>svg]:px-2.5",
-+  sm: "h-9 gap-1.5 rounded-md px-3 has-[>svg]:px-2.5",
--  "icon-sm": "size-8",
-+  "icon-sm": "size-9",
- }
-```
-
 ### 3. Files you do NOT need to touch
 
 These are handled entirely by CSS in `src/app.css` (data-slot overrides):

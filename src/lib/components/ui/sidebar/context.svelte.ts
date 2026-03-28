@@ -43,10 +43,9 @@ class SidebarState {
 		return this.#isMobile.current;
 	}
 
-	/** Whether the viewport is in the iPadOS-class tablet range (768px-1024px). */
 	get isTablet() {
-		return this.#isTablet.current;
-	}
+    return this.#isTablet.current;
+  }
 
 	// Event handler to apply to the `<svelte:window>`
 	handleShortcutKeydown = (e: KeyboardEvent) => {

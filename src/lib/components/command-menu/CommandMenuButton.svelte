@@ -13,6 +13,11 @@ const { trigger, destroy } = createWebHaptics();
 onDestroy(destroy);
 
 let isMac = $state(false);
+interface Props {
+  sidebar?: boolean;
+}
+
+let { sidebar }: Props = $props();
 
 onMount(() => {
   isMac = /Mac|iPhone|iPad|iPod/.test(navigator.userAgent);
@@ -23,23 +28,19 @@ const commandMenu = useIntlayer("commandMenu");
 
 <Button
   variant="outline"
-  class={cn("gap-2 text-muted-foreground")}
+  class={cn("flex items-center gap-2 text-muted-foreground", sidebar ? "w-full": "w-80")}
   onclick={() => {
-    trigger([
-  { duration: 60, intensity: 1 },
-  { delay: 30, duration: 60, intensity: 0.75 },
-  { delay: 30, duration: 60 },
-  { delay: 30, duration: 60, intensity: 0.75 },
-  { delay: 30, duration: 60, intensity: 1 },
-]);
+    // ... dein haptic trigger
     toggleCommandMenu();
-    }}
+  }}
 >
-  <Search class={cn("h-4 w-4")} />
-  <span class={cn("hidden sm:inline")}>
-    {t($commandMenu,"commandPalette")}
+  <Search class={cn("h-4 w-4 shrink-0")} />
+
+  <span class={cn("hidden sm:inline flex-1 text-left")}>
+    {t($commandMenu, "commandPalette")}
   </span>
-  <KbdGroup>
+
+  <KbdGroup class={cn("ml-auto")}>
     <Kbd>{isMac ? "⌘" : "Ctrl"}</Kbd>
     <Kbd>J</Kbd>
   </KbdGroup>

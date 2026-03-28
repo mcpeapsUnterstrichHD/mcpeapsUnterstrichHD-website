@@ -77,7 +77,7 @@ let moreIsActive: boolean = $derived(
 </script>
 
 <!-- Floating pill container with safe-area bottom offset -->
-<div
+<nav
   class={cn(
     "fixed bottom-2 left-2 right-2 z-40",
     "flex justify-center",
@@ -138,4 +138,4 @@ let moreIsActive: boolean = $derived(
       </NavigationMenu.Item>
     </NavigationMenu.List>
   </NavigationMenu.Root>
-</div>
+</nav>
