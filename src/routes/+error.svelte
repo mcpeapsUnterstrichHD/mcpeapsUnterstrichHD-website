@@ -55,7 +55,7 @@ onMount(async () => {
   class="relative flex min-h-[80vh] w-full flex-col items-center justify-center overflow-hidden px-4 py-12"
 >
   <!-- Animated background gradient orbs -->
-  <div class="pointer-events-none absolute inset-0 overflow-hidden">
+  <div class="pointer-events-none absolute inset-0 overflow-hidden rounded-sm blur-sm m-4">
     <div
       class="absolute -left-20 -top-20 h-80 w-80 rounded-full bg-primary/30 blur-[100px]"
     ></div>
