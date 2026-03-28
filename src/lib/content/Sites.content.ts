@@ -30,7 +30,7 @@ const sitesContent = {
       [Locales.ENGLISH_UNITED_STATES]: "Home",
       [Locales.GERMAN_GERMANY]: "Startseite",
     }),
-    impressum: t({
+    imprint: t({
       [Locales.ENGLISH_UNITED_STATES]: "Imprint",
       [Locales.GERMAN_GERMANY]: "Impressum",
     }),
