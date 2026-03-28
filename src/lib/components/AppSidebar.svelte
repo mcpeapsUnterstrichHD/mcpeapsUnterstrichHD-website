@@ -95,7 +95,7 @@ let connectLinks: SidebarLink[] = $derived([
 
 /** Derived array of legal links (Imprint). Re-computes when locale changes. */
 let legalLinks: SidebarLink[] = $derived([
-  { title: t($sites, "impressum"), url: "/imprint/", icon: Scale },
+  { title: t($sites, "imprint"), url: "/imprint/", icon: Scale },
 ]);
 
 const isMobile = new IsMobile();
