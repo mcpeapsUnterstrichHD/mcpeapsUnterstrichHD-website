@@ -123,7 +123,7 @@ const isTablet = new IsTablet();
             <Tooltip.Root>
               <Tooltip.Trigger
                 onclick={() => {}}
-                class={cn("flex w-full items-center gap-2 rounded-md p-2 text-left text-xs hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors overflow-hidden")}
+                class={cn("flex w-full items-center gap-4 rounded-md p-4 text-left text-xs hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors overflow-hidden")}
               >
                 <LocalizedLink
                   href={getLocalizedUrl(navigationLinks[0].url, $locale)}

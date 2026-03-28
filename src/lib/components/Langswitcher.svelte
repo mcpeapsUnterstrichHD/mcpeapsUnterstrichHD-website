@@ -145,8 +145,10 @@ const buttonClasses = $derived(
   bind:open
 >
   <!-- Main trigger row -->
+  <Tooltip.Root>
+    <Tooltip.Trigger class={cn("outline-none cursor-pointer", sidebar ? 'w-full' : "" )}>
   <div
-    class={cn(containerClasses)}
+    class={cn(sidebar ? 'w-full' : "", containerClasses)}
     onclick={() => {
       open = !open;
       trigger([
@@ -163,18 +165,7 @@ const buttonClasses = $derived(
       if (e.key === "Enter") open = !open;
     }}
   >
-    {#if sidebar}
-      <Tooltip.Root>
-        <Tooltip.Trigger class={cn("shrink-0 outline-none cursor-pointer")}>
           <Globe class={cn("size-4")} />
-        </Tooltip.Trigger>
-        <Tooltip.Content side="right">
-          {currentLanguage?.name} ({currentLanguage?.country})
-        </Tooltip.Content>
-      </Tooltip.Root>
-    {:else}
-      <Globe class={cn("size-4 shrink-0 text-muted-foreground")} />
-    {/if}
 
     <div
       class={cn(sidebar
@@ -244,6 +235,11 @@ const buttonClasses = $derived(
       {/if}
     </div>
   </div>
+</Tooltip.Trigger>
+        <Tooltip.Content side="right">
+          {currentLanguage?.name} ({currentLanguage?.country})
+        </Tooltip.Content>
+      </Tooltip.Root>
 
   <Collapsible.Content>
     {#if sidebar}
