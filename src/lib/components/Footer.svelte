@@ -96,9 +96,7 @@ const socialLinks = [
 ];
 
 /** Derived array of legal links (Imprint). Re-computes when locale changes. */
-let legalLinks = $derived([
-  { href: "/imprint", label: t($sites, "impressum") },
-]);
+let legalLinks = $derived([{ href: "/imprint", label: t($sites, "imprint") }]);
 
 /**
  * Dispatches a `show-cookie-consent` custom event on the window to re-open
