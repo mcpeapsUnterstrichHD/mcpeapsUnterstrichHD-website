@@ -1,0 +1,8 @@
+{
+  "servers": {
+    "jsrepo": {
+      "command": "npx",
+      "args": ["@jsrepo/mcp"]
+    }
+  }
+}
