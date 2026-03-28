@@ -41,7 +41,7 @@ import { PanelLeft } from "@lucide/svelte";
 import { cn } from "$lib/utils";
 import { createWebHaptics } from "web-haptics/svelte";
 import { onDestroy, onMount } from "svelte";
-import { Kbd } from "./ui/kbd";
+import { Kbd, KbdGroup } from "./ui/kbd";
 const { trigger, destroy } = createWebHaptics();
 onDestroy(destroy);
 
@@ -95,14 +95,17 @@ onMount(() => {
 ]);
       }}
   >
-    <PanelLeft class={cn("h-4 w-4")} />
-    <span class={cn("flex items-center gap-2 group-data-[collapsible=icon]:hidden")}>
+
+    <div  class={cn("flex items-center gap-2 text-muted-foreground group-data-[collapsible=icon]:hidden", variant === "sidebar" ? "w-full": "")}>
+      <PanelLeft class={cn("h-4 w-4")} />
+      <span class={cn("flex-1 text-left")}>
       {t($sidebarText, "toggleSidebar")}
-      <span class={cn("ml-auto flex items-center gap-0.5")}>
+      </span>
+      <KbdGroup class={cn("ml-auto")}>
         <Kbd>{isMac ? "⌘" : "Ctrl"}</Kbd>
         <Kbd>B</Kbd>
-      </span>
-    </span>
+      </KbdGroup>
+    </div>
   </Tooltip.Trigger>
   <Tooltip.Content side="right">
     {t($sidebarText, "toggleSidebar")}

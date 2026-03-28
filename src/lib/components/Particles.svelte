@@ -363,6 +363,6 @@ onresize={handleResize}
 
 <canvas
   bind:this={canvas}
-  class={cn("fixed inset-0 w-full h-full z-[-1] no-print animate-fade-in pointer-events-none", className)}
+  class={cn("fixed inset-0 w-full h-full z-[-1] no-print print:hidden animate-fade-in pointer-events-none", className)}
   aria-hidden="true"
 ></canvas>

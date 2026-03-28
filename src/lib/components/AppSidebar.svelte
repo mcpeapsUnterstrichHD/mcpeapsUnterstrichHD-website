@@ -105,7 +105,7 @@ const isTablet = new IsTablet();
 <Sidebar.Root
   collapsible="offcanvas"
   variant="floating"
-  class={cn("no-print my-glass rounded-sm")}
+  class={cn("no-print print:hidden my-glass rounded-sm")}
 >
   <Sidebar.Header>
     <Sidebar.Group>
@@ -285,7 +285,7 @@ const isTablet = new IsTablet();
           </Sidebar.MenuItem>
           <Sidebar.MenuItem>
             {#if !isMobile.current && !isTablet.current}
-              <CommandMenuButton />
+              <CommandMenuButton sidebar />
             {/if}
           </Sidebar.MenuItem>
           <Sidebar.MenuItem>

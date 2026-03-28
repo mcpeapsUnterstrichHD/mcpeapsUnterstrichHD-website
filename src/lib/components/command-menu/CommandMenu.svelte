@@ -18,7 +18,7 @@ import {
 } from "@lucide/svelte";
 import * as Command from "$lib/components/ui/command";
 
-import { Kbd } from "$lib/components/ui/kbd";
+import { Kbd, KbdGroup } from "$lib/components/ui/kbd";
 import { languages, type Language } from "$lib/lang";
 import { getLocalizedUrl, isActive, t } from "$lib/i18n";
 import { cn } from "$lib/utils";
@@ -153,25 +153,21 @@ onMount(() => {
       {#each navigationLinks as link, i}
         {@const Icon = link.icon}
         <Command.Item
-          value={link.label()}
-          onSelect={() => navigateTo(link.href)}
-          class={cn("flex items-center justify-between")}
-        >
-          <span class={cn("flex items-center gap-2")}>
-            <Icon class={cn("me-2 size-4")} />
-            <span>{link.label()}</span>
-          </span>
-          <span class={cn("flex items-center gap-1")}>
-            {#if isActive($locale as Locale, link.href, link.href2)}
-            <Dot
-            class={cn("text-primary shrink-0")}
-            size={72}
-            strokeWidth={6}
-          />
-            {/if}
-            <Kbd>{i + 1}</Kbd>
-          </span>
-        </Command.Item>
+  value={link.label()}
+  onSelect={() => navigateTo(link.href)}
+  class={cn("flex items-center gap-2 w-full")}
+>
+  <Icon class={cn("size-4 shrink-0")} />
+
+  <span class="flex-1 text-left">{link.label()}</span>
+
+  <div class={cn("flex items-center gap-1 shrink-0")}>
+    {#if isActive($locale as Locale, link.href, link.href2)}
+      <Dot class={cn("text-primary")} size={72} strokeWidth={6} />
+    {/if}
+    <Kbd>{i + 1}</Kbd>
+  </div>
+</Command.Item>
       {/each}
     </Command.Group>
 
@@ -179,23 +175,19 @@ onMount(() => {
 
     <Command.Group heading={t($dict, "languages")}>
       {#each languages as lang}
-        <Command.Item
-          value={`${lang.name} ${lang.country} ${lang.code}`}
-          onSelect={() => selectLanguage(lang)}
-          class={cn("flex items-center justify-between")}
-        >
-          <span class={cn("flex items-center gap-2")}>
-            <Globe class={cn("size-4")} />
-            <span>{lang.name} ({lang.country})</span>
-          </span>
-          {#if lang.code === $locale}
-          <Dot
-          class={cn("text-primary shrink-0")}
-          size={72}
-          strokeWidth={6}
-        />
-          {/if}
-        </Command.Item>
+      <Command.Item
+  value={`${lang.name} ${lang.country} ${lang.code}`}
+  onSelect={() => selectLanguage(lang)}
+  class={cn("flex items-center gap-2 w-full")}
+>
+  <Globe class={cn("size-4 shrink-0")} />
+
+  <span class="flex-1 text-left">{lang.name} ({lang.country})</span>
+
+  {#if lang.code === $locale}
+    <Dot class={cn("text-primary shrink-0")} size={72} strokeWidth={6} />
+  {/if}
+</Command.Item>
       {/each}
     </Command.Group>
 
@@ -217,13 +209,16 @@ onMount(() => {
       <Command.Item
         value={t($sidebarText, "toggleSidebar")}
         onSelect={toggleSidebar}
+        class={cn("flex items-center gap-2 w-full")}
       >
-        <PanelLeft class={cn("me-2 size-4")} />
-        <span>{t($sidebarText, "toggleSidebar")}</span>
-        <span class={cn("ml-auto flex items-center gap-0.5")}>
-          <Kbd>{isMac ? "⌘" : "Ctrl"}</Kbd>
-          <Kbd>B</Kbd>
-        </span>
+        <PanelLeft class={cn("h-4 w-4")} />
+        <span class={cn("flex-1 text-left")}>
+          {t($sidebarText, "toggleSidebar")}
+          </span>
+          <KbdGroup class={cn("ml-auto")}>
+            <Kbd>{isMac ? "⌘" : "Ctrl"}</Kbd>
+            <Kbd>B</Kbd>
+          </KbdGroup>
       </Command.Item>
     </Command.Group>
   </Command.List>

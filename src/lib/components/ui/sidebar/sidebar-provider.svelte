@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { untrack } from "svelte";
 	import * as Tooltip from "$lib/components/ui/tooltip/index.js";
 	import { cn, type WithElementRef } from "$lib/utils.js";
 	import type { HTMLAttributes } from "svelte/elements";
@@ -10,6 +9,7 @@
 		SIDEBAR_WIDTH_ICON,
 	} from "./constants.js";
 	import { setSidebar } from "./context.svelte.js";
+	import { untrack } from "svelte";
 
 	let {
 		ref = $bindable(null),
@@ -34,14 +34,11 @@
 			document.cookie = `${SIDEBAR_COOKIE_NAME}=${open}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
 		},
 	});
-
-	// On iPadOS-class viewports (768px-1024px), default the sidebar to collapsed
-	// so the content area gets more space - matching iPadOS NavigationSplitView behavior.
 	$effect(() => {
-		if (sidebar.isTablet) {
-			untrack(() => sidebar.setOpen(false));
-		}
-	});
+  if (sidebar.isTablet) {
+    untrack(() => sidebar.setOpen(false));
+  }
+});
 </script>
 
 <svelte:window onkeydown={sidebar.handleShortcutKeydown} />
