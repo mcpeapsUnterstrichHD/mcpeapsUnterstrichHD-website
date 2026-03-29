@@ -80,6 +80,11 @@ export default defineConfig({
     },
     allowedHosts: ["localhost", "mahd-mbp"],
   },
+  optimizeDeps: {
+    esbuildOptions: {
+      target: "esnext",
+    },
+  },
   build: {
     modulePreload: true,
     target: "esnext",
