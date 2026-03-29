@@ -244,8 +244,7 @@ These are custom files outside the shadcn-svelte component tree:
 
 # Getting the WASM file
 
-the wasm file is from the Repo [comboomPunkTsucht/comboom_punkt_sucht_native_wallpaper](https://github.com/comboomPunkTsucht/comboom_punkt_sucht_native_wallpaper.git):  [c149869](https://github.com/comboomPunkTsucht/comboom_punkt_sucht_native_wallpaper/commit/c14986939263e2f3252815ec82a44429cd331792)
-
+the wasm file is from the Repo [comboomPunkTsucht/comboom_punkt_sucht_native_wallpaper](https://github.com/comboomPunkTsucht/comboom_punkt_sucht_native_wallpaper.git):  [b39e6d2](https://github.com/comboomPunkTsucht/comboom_punkt_sucht_native_wallpaper/commit/b39e6d2e234ff1837862ddceeae8a21470123d6b)
 
 # UI Components Origons
 

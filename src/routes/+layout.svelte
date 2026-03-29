@@ -87,7 +87,7 @@ let { children }: { children: Snippet } = $props();
   >
     <AppSidebar />
 
-    <Particles quantity={400} refresh={true} />
+    <Particles quantity={400} />
     <div
       class={cn("app dark isolate relative z-10 flex flex-col min-h-svh flex-1 w-full pb-20 md:pb-0")}
     >
