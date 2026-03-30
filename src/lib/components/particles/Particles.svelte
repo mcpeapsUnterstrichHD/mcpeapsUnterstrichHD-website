@@ -1,6 +1,7 @@
 <script lang="ts">
 import { cn } from "$lib/utils";
 import { Canvas } from "@threlte/core";
+import { NoToneMapping } from "three";
 import Scene from "./Scene.svelte";
 
 interface Props {
@@ -16,7 +17,9 @@ let canvasSize = $state({ w: 0, h: 0 });
 
 <div class={cn("fixed inset-0 w-full h-full z-[-1] no-print print:hidden animate-fade-in pointer-events-none", className)} aria-hidden="true">
   {#if canvasSize.w > 0}
-    <Canvas>
+    <Canvas
+      toneMapping={NoToneMapping}
+    >
       <Scene h1="" h2="" bind:canvasSize={canvasSize} {quantity} />
     </Canvas>
   {/if}
