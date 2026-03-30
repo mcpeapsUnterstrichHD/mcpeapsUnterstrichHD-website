@@ -35,7 +35,7 @@ import AppSidebar from "$lib/components/AppSidebar.svelte";
 import NavBar from "$lib/components/NavBar.svelte";
 import TabBar from "$lib/components/TabBar.svelte";
 import ClickSpark from "$lib/components/ClickSpark.svelte";
-import Particles from "$lib/components/Particles.svelte";
+import Particles from "$lib/components/particles";
 import Footer from "$lib/components/Footer.svelte";
 import CommandMenu from "$lib/components/command-menu/CommandMenu.svelte";
 import RecommendationToasts from "$lib/components/RecommendationToasts.svelte";
