@@ -17,7 +17,6 @@ import {
   PanelLeft,
 } from "@lucide/svelte";
 import * as Command from "$lib/components/ui/command";
-
 import { Kbd, KbdGroup } from "$lib/components/ui/kbd";
 import { languages, type Language } from "$lib/lang";
 import { getLocalizedUrl, isActive, t } from "$lib/i18n";
@@ -144,8 +143,11 @@ onMount(() => {
   bind:open
   title={t($dict, "commandPalette")}
   description={t($dict, "commandPaletteDescription")}
+  class={cn("bg-popover! text-popover-foreground!", "w-screen! xl:w-7xl! lg:w-5xl! md:w-3xl! sm:w-xl!", "rounded-sm! border! shadow-md!", "data-[state=open]:animate-in! data-[state=closed]:animate-out! data-[state=closed]:fade-out-0! data-[state=open]:fade-in-0!")}
 >
-  <Command.Input placeholder={t($dict, "searchPlaceholder")} />
+  <Command.Input
+  class={cn("border-b! border-border! focus:ring-0! outline-none! mb-2! h-12! px-4!", "bg-transparent!", "text-sm!", "placeholder:text-muted-foreground!", "data-[placeholder]:text-center!")}
+  placeholder={t($dict, "searchPlaceholder")} />
   <Command.List>
     <Command.Empty>{t($dict, "noResults")}</Command.Empty>
 
@@ -155,7 +157,7 @@ onMount(() => {
         <Command.Item
   value={link.label()}
   onSelect={() => navigateTo(link.href)}
-  class={cn("flex items-center gap-2 w-full")}
+  class={cn("flex items-center gap-2 w-full data-selected:bg-accent!")}
 >
   <Icon class={cn("size-4 shrink-0")} />
 
@@ -178,14 +180,14 @@ onMount(() => {
       <Command.Item
   value={`${lang.name} ${lang.country} ${lang.code}`}
   onSelect={() => selectLanguage(lang)}
-  class={cn("flex items-center gap-2 w-full")}
+  class={cn("flex items-center gap-2 w-full data-selected:bg-accent!")}
 >
   <Globe class={cn("size-4 shrink-0")} />
 
   <span class="flex-1 text-left">{lang.name} ({lang.country})</span>
 
   {#if lang.code === $locale}
-    <Dot class={cn("text-primary shrink-0")} size={72} strokeWidth={6} />
+    <Dot class={cn("text-primary! data-selected:text-primary!")} size={72} strokeWidth={6} />
   {/if}
 </Command.Item>
       {/each}
@@ -197,6 +199,7 @@ onMount(() => {
       <Command.Item
         value={t($dict, "cookieSettings")}
         onSelect={handleCookieSettings}
+        class={cn("data-selected:bg-accent!")}
       >
         <Cookie class={cn("me-2 size-4")} />
         <span>{t($dict, "cookieSettings")}</span>
@@ -209,7 +212,7 @@ onMount(() => {
       <Command.Item
         value={t($sidebarText, "toggleSidebar")}
         onSelect={toggleSidebar}
-        class={cn("flex items-center gap-2 w-full")}
+        class={cn("flex items-center gap-2 w-full data-selected:bg-accent!")}
       >
         <PanelLeft class={cn("h-4 w-4")} />
         <span class={cn("flex-1 text-left")}>
