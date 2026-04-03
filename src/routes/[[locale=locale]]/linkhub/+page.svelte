@@ -2,163 +2,216 @@
 /**
  * @module routes/[[locale=locale]]/linkhub/+page
  * @description Link hub / "link in bio" page aggregating all social media profiles,
- * websites, and other external links. Serves as a central landing page for sharing
- * across social platforms (similar to Linktree).
- *
- * The page is organized into three sections:
- *
- * 1. **Social Media** - Cards linking to Instagram, TikTok, Threads, Bluesky, X/Twitter,
- *    Discord, and YouTube profiles, each with platform icon, title, and description
- * 2. **Websites** - Cards linking to the main portfolio site, ComBoomPunktSucht app,
- *    and the CBPS blog
- * 3. **Other** - GitHub profile link, plus embedded Apple Music playlist and current
- *    song via Odesli/song.link, both wrapped in `ConsentIframe` for GDPR consent gating
- *
- * Each link is rendered as a `LinkCard.Root` component within a `MasonryGrid`.
- * The music embeds use inline `Card` components with `ConsentIframe` for consent-gated
- * third-party content.
- *
- * All text content is internationalized via the Intlayer `linkhub`, `aboutme`, `sites`,
- * and `layout` dictionaries.
- *
- * Link hub page following iOS Settings-style grouped sections pattern --
- * categorized link lists (Social, Websites, Other) with leading icons and
- * descriptions.
- *
- * @see {@link $lib/components/link-card} for individual link card components
- * @see {@link $lib/components/MasonryGrid.svelte} for masonry grid layout
- * @see {@link $lib/components/cookie/ConsentIframe.svelte} for consent-gated iframes
+ * websites, and other external links.
  */
 
 import { useIntlayer } from "svelte-intlayer";
-import * as Card from "$lib/components/ui/card";
 import AuroraText from "$lib/components/AuroraText.svelte";
 import ConsentIframe from "$lib/components/cookie/ConsentIframe.svelte";
 import MasonryGrid from "$lib/components/MasonryGrid.svelte";
 import * as LinkCard from "$lib/components/link-card";
 import { Share2, Globe, MoreHorizontal } from "@lucide/svelte";
-import LocalizedLink from "$lib/components/LocalizedLink.svelte";
+import { t } from "$lib/i18n";
 
 const linkhub = useIntlayer("linkhub");
 const aboutme = useIntlayer("aboutme");
 const sites = useIntlayer("sites");
 const layout = useIntlayer("layout");
 
-/** @constant {string} spotifyUrl - Embedded Spotify track URL for the music widget */
-const spotifyUrl =
-  "https://open.spotify.com/embed/track/25S3D2lEwF25iur275I4d4?utm_source=generator&theme=0";
+// --- Daten-Arrays für das neue MasonryGrid ---
+// Jedes Objekt benötigt ein 'key', da dein MasonryGrid dies erzwingt (generics="T extends { key: ... }")
+
+const socialLinks = [
+  {
+    key: "instagram",
+    url: "https://instagram.com/mcpeaps_hd",
+    icon: "/pictures/linkhub/instagram-dark.svg",
+  },
+  {
+    key: "tiktok",
+    url: "https://www.tiktok.com/@mcpeaps_hd",
+    icon: "/pictures/linkhub/tiktok.svg",
+  },
+  {
+    key: "threads",
+    url: "https://www.threads.net/@mcpeaps_hd",
+    icon: "/pictures/linkhub/threads-dark.svg",
+  },
+  {
+    key: "bsky",
+    url: "https://bsky.mcpeapsunterstrichhd.dev",
+    icon: "/pictures/linkhub/bsky.svg",
+  },
+  {
+    key: "twitter",
+    url: "https://x.com/mcpeaps_HD",
+    icon: "/pictures/linkhub/twitter-dark.svg",
+  },
+  {
+    key: "discord",
+    url: "https://discord.gg/XHGTbb4mTF",
+    icon: "/pictures/linkhub/discord.svg",
+  },
+  {
+    key: "youtube",
+    url: "https://youtube.com/@mcpeaps_HD",
+    icon: "/pictures/linkhub/youtube.svg",
+  },
+];
+
+const websiteLinks = [
+  {
+    key: "myWebsite",
+    url: "https://mcpeapsunterstrichhd.dev",
+    icon: "/pictures/logo.png",
+  },
+  {
+    key: "cbps",
+    url: "https://comboompunktsucht.app",
+    icon: "/pictures/cbps_logo.png",
+  },
+  {
+    key: "blogCBPS",
+    url: "https://blog.comboompunktsucht.app",
+    icon: "/pictures/cbps_logo.png",
+  },
+];
+
+// Für die 'Other'-Sektion nutzen wir ein 'type'-Feld, um im Snippet das richtige Layout zu rendern
+const otherLinks = [
+  {
+    key: "github",
+    type: "link",
+    url: "https://github.com/mcpeapsUnterstrichHD",
+    icon: "/pictures/linkhub/github-dark.svg",
+  },
+  {
+    key: "playlist",
+    type: "playlist",
+    url: "https://music.apple.com/de/playlist/favorite/pl.u-aZb0kXDFP7zBoV2",
+    icon: "/pictures/linkhub/apple-musik.svg",
+  },
+  {
+    key: "song",
+    type: "song",
+    url: "https://song.link/festival_dream&theme=dark",
+    icon: "/pictures/linkhub/apple-musik.svg",
+  },
+];
 </script>
 
-<svelte:head>
-  <title>{$sites.linkhub} | {$layout.title}</title>
-</svelte:head>
+  <svelte:head>
+    <title>{t($sites, "linkhub")} | {t($layout, "title")}</title>
+  </svelte:head>
 
-<div class="flex flex-col gap-12 px-6 py-10 lg:px-8 mx-auto">
-  <!-- Hero Section -->
-  <section class="text-center space-y-4">
-    <AuroraText class="text-4xl md:text-5xl lg:text-6xl font-bold" colors={['#C16069', '#A2BF8A', '#C16069', '#A2BF8A']} speed={3}>
-      {$aboutme.name as unknown as string}
-    </AuroraText>
-    <p class="text-muted-foreground text-lg">
-      {$linkhub.description}
-    </p>
-  </section>
+  <div class="flex flex-col gap-12 px-6 py-10 lg:px-8 mx-auto">
+    <section class="text-center space-y-4">
+      <AuroraText class="text-4xl md:text-5xl lg:text-6xl font-bold" colors={['#C16069', '#A2BF8A', '#C16069', '#A2BF8A']} speed={3}>
+        {t($aboutme, "name")}
+      </AuroraText>
+      <p class="text-muted-foreground text-lg">
+        {t($linkhub, "description")}
+      </p>
+    </section>
 
-  <!-- Social Media Section -->
-  <section class="space-y-6">
-    <h2 class="text-3xl md:text-4xl font-bold text-center flex items-center justify-center gap-3">
-      <Share2 class="w-7 h-7 text-primary" />
-      {$linkhub.sections.socialMedia.title as unknown as string}
-    </h2>
-    <MasonryGrid variant="links">
-      <LinkCard.Root title={$linkhub.sections.socialMedia.instagram.title as unknown as string} description={$linkhub.sections.socialMedia.instagram.description as unknown as string} heading={$linkhub.sections.socialMedia.instagram.headding as unknown as string} url="https://instagram.com/mcpeaps_hd" icon="/pictures/linkhub/instagram-dark.svg" />
-      <LinkCard.Root title={$linkhub.sections.socialMedia.tiktok.title as unknown as string} description={$linkhub.sections.socialMedia.tiktok.description as unknown as string} heading={$linkhub.sections.socialMedia.tiktok.headding as unknown as string} url="https://www.tiktok.com/@mcpeaps_hd" icon="/pictures/linkhub/tiktok.svg" />
-      <LinkCard.Root title={$linkhub.sections.socialMedia.threads.title as unknown as string} description={$linkhub.sections.socialMedia.threads.description as unknown as string} heading={$linkhub.sections.socialMedia.threads.headding as unknown as string} url="https://www.threads.net/@mcpeaps_hd" icon="/pictures/linkhub/threads-dark.svg" />
-      <LinkCard.Root title={$linkhub.sections.socialMedia.bsky.title as unknown as string} description={$linkhub.sections.socialMedia.bsky.description as unknown as string} heading={$linkhub.sections.socialMedia.bsky.headding as unknown as string} url="https://bsky.mcpeapsunterstrichhd.dev" icon="/pictures/linkhub/bsky.svg" />
-      <LinkCard.Root title={$linkhub.sections.socialMedia.twitter.title as unknown as string} description={$linkhub.sections.socialMedia.twitter.description as unknown as string} heading={$linkhub.sections.socialMedia.twitter.headding as unknown as string} url="https://x.com/mcpeaps_HD" icon="/pictures/linkhub/twitter-dark.svg" />
-      <LinkCard.Root title={$linkhub.sections.socialMedia.discord.title as unknown as string} description={$linkhub.sections.socialMedia.discord.description as unknown as string} heading={$linkhub.sections.socialMedia.discord.headding as unknown as string} url="https://discord.gg/XHGTbb4mTF" icon="/pictures/linkhub/discord.svg" />
-      <LinkCard.Root title={$linkhub.sections.socialMedia.youtube.title as unknown as string} description={$linkhub.sections.socialMedia.youtube.description as unknown as string} heading={$linkhub.sections.socialMedia.youtube.headding as unknown as string} url="https://youtube.com/@mcpeaps_HD" icon="/pictures/linkhub/youtube.svg" />
-    </MasonryGrid>
-  </section>
+    <section class="space-y-6">
+      <h2 class="text-3xl md:text-4xl font-bold text-center flex items-center justify-center gap-3">
+        <Share2 class="w-7 h-7 text-primary" />
+        {t($linkhub, "socialMedia.title")}
+      </h2>
+      <MasonryGrid variant="links" items={socialLinks}>
+        {#snippet children(link)}
+          <div class="break-inside-avoid mb-4">
+            <LinkCard.Root
+              title={t($linkhub, `sections.socialMedia.${link.key}.title`)}
+              description={t($linkhub, `sections.socialMedia.${link.key}.description`)}
+              heading={t($linkhub, `sections.socialMedia.${link.key}.headding`)}
+              url={link.url}
+              icon={link.icon}
+            />
+          </div>
+        {/snippet}
+      </MasonryGrid>
+    </section>
 
-  <!-- Websites Section -->
-  <section class="space-y-6">
-    <h2 class="text-3xl md:text-4xl font-bold text-center flex items-center justify-center gap-3">
-      <Globe class="w-7 h-7 text-primary" />
-      {$linkhub.sections.websites.title as unknown as string}
-    </h2>
-    <MasonryGrid variant="links">
-      <LinkCard.Root title={$linkhub.sections.websites.myWebsite.title as unknown as string} description={$linkhub.sections.websites.myWebsite.description as unknown as string} heading={$linkhub.sections.websites.myWebsite.headding as unknown as string} url="https://mcpeapsunterstrichhd.dev" icon="/pictures/logo.png" />
-      <LinkCard.Root title={$linkhub.sections.websites.cbps.title as unknown as string} description={$linkhub.sections.websites.cbps.description as unknown as string} heading={$linkhub.sections.websites.cbps.headding as unknown as string} url="https://comboompunktsucht.app" icon="/pictures/cbps_logo.png" />
-      <LinkCard.Root title={$linkhub.sections.websites.blogCBPS.title as unknown as string} description={$linkhub.sections.websites.blogCBPS.description as unknown as string} heading={$linkhub.sections.websites.blogCBPS.headding as unknown as string} url="https://blog.comboompunktsucht.app" icon="/pictures/cbps_logo.png" />
-    </MasonryGrid>
-  </section>
+    <section class="space-y-6">
+      <h2 class="text-3xl md:text-4xl font-bold text-center flex items-center justify-center gap-3">
+        <Globe class="w-7 h-7 text-primary" />
+        {t($linkhub, "sections.websites.title")}
+      </h2>
+      <MasonryGrid variant="links" items={websiteLinks}>
+        {#snippet children(link)}
+          <div class="break-inside-avoid mb-4">
+            <LinkCard.Root
+              title={t($linkhub, `sections.websites.${link.key}.title`)}
+              description={t($linkhub, `sections.websites.${link.key}.description`)}
+              heading={t($linkhub, `sections.websites.${link.key}.headding`)}
+              url={link.url}
+              icon={link.icon}
+            />
+          </div>
+        {/snippet}
+      </MasonryGrid>
+    </section>
 
-  <!-- Other Section -->
-  <section class="space-y-6">
-    <h2 class="text-3xl md:text-4xl font-bold text-center flex items-center justify-center gap-3">
-      <MoreHorizontal class="w-7 h-7 text-primary" />
-      {$linkhub.sections.other.title as unknown as string}
-    </h2>
-    <MasonryGrid variant="links">
-      <LinkCard.Root title={$linkhub.sections.other.github.title as unknown as string} description={$linkhub.sections.other.github.description as unknown as string} heading={$linkhub.sections.other.github.headding as unknown as string} url="https://github.com/mcpeapsUnterstrichHD" icon="/pictures/linkhub/github-dark.svg" />
-      <!-- Playlist with embed -->
-      <div class="break-inside-avoid mb-4">
-        <LocalizedLink href="https://music.apple.com/de/playlist/favorite/pl.u-aZb0kXDFP7zBoV2" target="_blank" rel="noopener noreferrer">
-          <Card.Root class="my-glass">
-            <Card.Header>
-              <div class="flex items-center gap-3">
-                <img src="/pictures/linkhub/apple-musik.svg" alt="Apple Music" class="w-8 h-8 rounded" />
-                <div>
-                  <Card.Title class="text-base">{$linkhub.sections.other.playlist.title}</Card.Title>
-                  <p class="text-sm text-muted-foreground">{$linkhub.sections.other.playlist.headding}</p>
-                </div>
-              </div>
-              <Card.Description>{$linkhub.sections.other.playlist.description}</Card.Description>
-            </Card.Header>
-            <Card.Content>
-              <ConsentIframe
-                category="multimedia"
-                allow="autoplay *; encrypted-media *; fullscreen *; clipboard-write"
-                class="w-full rounded-lg"
-                height="450"
-                sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation-by-user-activation"
-                src="https://embed.music.apple.com/de/playlist/favorite/pl.u-aZb0kXDFP7zBoV2"
-                title={$linkhub.sections.other.playlist.description as unknown as string}
+    <section class="space-y-6">
+      <h2 class="text-3xl md:text-4xl font-bold text-center flex items-center justify-center gap-3">
+        <MoreHorizontal class="w-7 h-7 text-primary" />
+        {t($linkhub, "sections.other.title")}
+      </h2>
+      <MasonryGrid variant="links" items={otherLinks}>
+        {#snippet children(link)}
+          <div class="break-inside-avoid mb-4">
+            {#if link.type === "link"}
+              <LinkCard.Root
+                title={t($linkhub, `sections.other.${link.key}.title`)}
+                description={t($linkhub, `sections.other.${link.key}.description`)}
+                heading={t($linkhub, `sections.other.${link.key}.headding`)}
+                url={link.url}
+                icon={link.icon}
               />
-            </Card.Content>
-          </Card.Root>
-        </LocalizedLink>
-      </div>
-      <!-- Song with embed -->
-      <div class="break-inside-avoid mb-4">
-        <LocalizedLink href="https://song.link/festival_dream&theme=dark" target="_blank" rel="noopener noreferrer">
-          <Card.Root class="my-glass">
-            <Card.Header>
-              <div class="flex items-center gap-3">
-                <img src="/pictures/linkhub/apple-musik.svg" alt="Apple Music" class="w-8 h-8 rounded" />
-                <div>
-                  <Card.Title class="text-base">{$linkhub.sections.other.song.title}</Card.Title>
-                  <p class="text-sm text-muted-foreground">{$linkhub.sections.other.song.headding}</p>
-                </div>
-              </div>
-              <Card.Description>{$linkhub.sections.other.song.description}</Card.Description>
-            </Card.Header>
-            <Card.Content>
-              <ConsentIframe
-                category="multimedia"
-                class="w-full rounded-lg"
-                height="450"
-                src="https://odesli.co/embed/?url=https%3A%2F%2Fsong.link%2Ffestival_dream&theme=dark"
-                allowFullScreen
-                sandbox="allow-same-origin allow-scripts allow-presentation allow-popups allow-popups-to-escape-sandbox"
-                allow="clipboard-read; clipboard-write"
-                title={$linkhub.sections.other.song.description as unknown as string}
-              />
-            </Card.Content>
-          </Card.Root>
-        </LocalizedLink>
-      </div>
-    </MasonryGrid>
-  </section>
-</div>
+
+            {:else if link.type === "playlist"}
+              <LinkCard.Big
+                title={t($linkhub, `sections.other.${link.key}.title`)}
+                heading={t($linkhub, `sections.other.${link.key}.headding`)}
+                description={t($linkhub, `sections.other.${link.key}.description`)}
+                url={link.url}
+                icon={link.icon}
+              >
+                <ConsentIframe
+                  category="multimedia"
+                  allow="autoplay *; encrypted-media *; fullscreen *; clipboard-write"
+                  class="w-full rounded-lg"
+                  height="450"
+                  sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation-by-user-activation"
+                  src="https://embed.music.apple.com/de/playlist/favorite/pl.u-aZb0kXDFP7zBoV2"
+                  title={t($linkhub, "sections.other.playlist.description") as unknown as string}
+                />
+              </LinkCard.Big>
+
+            {:else if link.type === "song"}
+              <LinkCard.Big
+                title={t($linkhub, `sections.other.${link.key}.title`)}
+                heading={t($linkhub, `sections.other.${link.key}.headding`)}
+                description={t($linkhub, `sections.other.${link.key}.description`)}
+                url={link.url}
+                icon={link.icon}
+              >
+                <ConsentIframe
+                  category="multimedia"
+                  class="w-full rounded-lg"
+                  height="450"
+                  src="https://odesli.co/embed/?url=https%3A%2F%2Fsong.link%2Ffestival_dream&theme=dark"
+                  allowFullScreen
+                  sandbox="allow-same-origin allow-scripts allow-presentation allow-popups allow-popups-to-escape-sandbox"
+                  allow="clipboard-read; clipboard-write"
+                  title={t($linkhub, "sections.other.song.description") as unknown as string}
+                />
+              </LinkCard.Big>
+            {/if}
+          </div>
+        {/snippet}
+      </MasonryGrid>
+    </section>
+  </div>

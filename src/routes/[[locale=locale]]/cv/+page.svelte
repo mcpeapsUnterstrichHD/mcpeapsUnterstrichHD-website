@@ -238,8 +238,8 @@ if (mo < 0 || (mo === 0 && today.getDate() < birthday.getDate())) age--;
             <h3 class={cn("text-2xl font-semibold mb-6 ml-1 opacity-80")}>
               {t($cv, category.titleKey)}
             </h3>
-            <MasonryGrid variant="skills">
-              {#each skills as skill}
+            <MasonryGrid variant="skills" items={skills.map((skill) => ({ ...skill, key: skill.title }))}>
+              {#snippet children(skill)}
                 <SkillCard.Root
                   image={skill.darkImage || skill.image || ""}
                   imagePrint={skill.darkImage ? skill.image : undefined}
@@ -254,7 +254,7 @@ if (mo < 0 || (mo === 0 && today.getDate() < birthday.getDate())) age--;
                   ]}
                   category={skill.category}
                 />
-              {/each}
+              {/snippet}
             </MasonryGrid>
           </div>
         {/if}
