@@ -1,4 +1,4 @@
-<script lang="ts">
+<script lang="ts" generics="T extends { key: string | number }">
 /**
  * @component MasonryGrid
  *
@@ -52,10 +52,16 @@ export type MasonryVariant =
 interface Props {
   variant?: MasonryVariant;
   class?: string;
-  children: Snippet;
+  items: T[];
+  children: Snippet<[T]>;
 }
 
-let { variant = "projects", class: className = "", children }: Props = $props();
+let {
+  variant = "projects",
+  class: className = "",
+  children,
+  items,
+}: Props = $props();
 
 /**
  * Static lookup mapping each `MasonryVariant` to its responsive Tailwind
@@ -70,5 +76,7 @@ const variantClasses: Record<MasonryVariant, string> = {
 </script>
 
 <div class={cn(variantClasses[variant], "gap-4 w-full", className)}>
-  {@render children()}
+  {#each items as item (item.key)}
+    {@render children(item)}
+  {/each}
 </div>
