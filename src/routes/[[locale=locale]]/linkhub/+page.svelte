@@ -117,7 +117,7 @@ const otherLinks = [
     <section class="space-y-6">
       <h2 class="text-3xl md:text-4xl font-bold text-center flex items-center justify-center gap-3">
         <Share2 class="w-7 h-7 text-primary" />
-        {t($linkhub, "socialMedia.title")}
+        {t($linkhub, "sections.socialMedia.title")}
       </h2>
       <MasonryGrid variant="links" items={socialLinks}>
         {#snippet children(link)}
