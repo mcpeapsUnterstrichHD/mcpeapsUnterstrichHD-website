@@ -67,7 +67,7 @@ let {
 // Determine which image to show (print variant handled via CSS media query if needed)
 </script>
 
-<Card.Root class={cn("my-glass p-4 mb-4 break-inside-avoid")}>
+<Card.Root class={cn("my-glass p-4")}>
   <Card.Header class={cn("pb-1")}>
     <div class={cn("flex flex-row items-center gap-3")}>
       {#if imagePrint}
