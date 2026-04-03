@@ -88,13 +88,11 @@ const otherLinks = [
   {
     key: "playlist",
     type: "playlist",
-    url: "https://music.apple.com/de/playlist/favorite/pl.u-aZb0kXDFP7zBoV2",
     icon: "/pictures/linkhub/apple-musik.svg",
   },
   {
     key: "song",
     type: "song",
-    url: "https://song.link/festival_dream&theme=dark",
     icon: "/pictures/linkhub/apple-musik.svg",
   },
 ];
@@ -121,7 +119,6 @@ const otherLinks = [
       </h2>
       <MasonryGrid variant="links" items={socialLinks}>
         {#snippet children(link)}
-          <div class="break-inside-avoid mb-4">
             <LinkCard.Root
               title={t($linkhub, `sections.socialMedia.${link.key}.title`)}
               description={t($linkhub, `sections.socialMedia.${link.key}.description`)}
@@ -129,7 +126,6 @@ const otherLinks = [
               url={link.url}
               icon={link.icon}
             />
-          </div>
         {/snippet}
       </MasonryGrid>
     </section>
@@ -141,7 +137,6 @@ const otherLinks = [
       </h2>
       <MasonryGrid variant="links" items={websiteLinks}>
         {#snippet children(link)}
-          <div class="break-inside-avoid mb-4">
             <LinkCard.Root
               title={t($linkhub, `sections.websites.${link.key}.title`)}
               description={t($linkhub, `sections.websites.${link.key}.description`)}
@@ -149,7 +144,6 @@ const otherLinks = [
               url={link.url}
               icon={link.icon}
             />
-          </div>
         {/snippet}
       </MasonryGrid>
     </section>
@@ -161,7 +155,6 @@ const otherLinks = [
       </h2>
       <MasonryGrid variant="links" items={otherLinks}>
         {#snippet children(link)}
-          <div class="break-inside-avoid mb-4">
             {#if link.type === "link"}
               <LinkCard.Root
                 title={t($linkhub, `sections.other.${link.key}.title`)}
@@ -176,7 +169,6 @@ const otherLinks = [
                 title={t($linkhub, `sections.other.${link.key}.title`)}
                 heading={t($linkhub, `sections.other.${link.key}.headding`)}
                 description={t($linkhub, `sections.other.${link.key}.description`)}
-                url={link.url}
                 icon={link.icon}
               >
                 <ConsentIframe
@@ -195,7 +187,6 @@ const otherLinks = [
                 title={t($linkhub, `sections.other.${link.key}.title`)}
                 heading={t($linkhub, `sections.other.${link.key}.headding`)}
                 description={t($linkhub, `sections.other.${link.key}.description`)}
-                url={link.url}
                 icon={link.icon}
               >
                 <ConsentIframe
@@ -210,7 +201,6 @@ const otherLinks = [
                 />
               </LinkCard.Big>
             {/if}
-          </div>
         {/snippet}
       </MasonryGrid>
     </section>

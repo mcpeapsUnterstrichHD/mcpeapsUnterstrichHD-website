@@ -1,69 +1,37 @@
 <script lang="ts">
 /**
  * @component LinkCard
- *
- * A compact masonry-compatible card representing a single external link entry
- * on the Linkhub page. Displays a small icon, title, heading subtitle, and a
- * description inside a shadcn-svelte `Card` with `my-glass` frosted-glass
- * backdrop. Link entry card following iOS cell pattern -- leading icon (32x32),
- * title with subtitle, and description. Uses Liquid Glass material for
- * translucent Nord-themed surface.
- *
- * All links open in a new tab (`target="_blank"`) with `rel="noopener noreferrer"`
- * for security.
- *
- * Layout uses `break-inside-avoid` for proper CSS-column masonry behaviour
- * within a {@link MasonryGrid}.
- *
- * @see {@link MasonryGrid} -- Grid wrapper that lays out link cards in columns
- * @see {@link LinkCardSkeleton} -- Loading placeholder counterpart
+ * ...
  */
 import * as Card from "$lib/components/ui/card";
 import { cn } from "$lib/utils";
 import { createWebHaptics } from "web-haptics/svelte";
-import { onDestroy } from "svelte";
+import { onDestroy, type Snippet } from "svelte";
 import LocalizedLink from "../LocalizedLink.svelte";
+
 const { trigger, destroy } = createWebHaptics();
 onDestroy(destroy);
 
-/**
- * Props for the LinkCard component.
- *
- * @property {string} title - Display title of the link entry.
- * @property {string} description - Brief descriptive text shown below the heading.
- * @property {string} heading - Subtitle/category label displayed under the title.
- * @property {string} url - External URL opened in a new tab when the card is clicked.
- * @property {string} icon - URL or path to the link's icon image (rendered at 32x32).
- */
 interface Props {
   title: string;
   description: string;
   heading: string;
-  url: string;
+  url?: string;
   icon: string;
 }
 
-let { title, description, heading, url, icon }: Props = $props();
+let { title, description, heading, url, icon, children }: Props = $props();
+
+const hapticsConfig = [
+  { duration: 60, intensity: 1 },
+  { delay: 30, duration: 60, intensity: 0.75 },
+  { delay: 30, duration: 60 },
+  { delay: 30, duration: 60, intensity: 0.75 },
+  { delay: 30, duration: 60, intensity: 1 },
+];
 </script>
 
-<div class={cn("break-inside-avoid mb-4")}>
-  <LocalizedLink href={url} onclick={() => {
-  trigger([
-  { duration: 60, intensity: 1 },
-  { delay: 30, duration: 60, intensity: 0.75 },
-  { delay: 30, duration: 60 },
-  { delay: 30, duration: 60, intensity: 0.75 },
-  { delay: 30, duration: 60, intensity: 1 },
-])
-}} onpointerenter={() => {
-  trigger([
-  { duration: 60, intensity: 1 },
-  { delay: 30, duration: 60, intensity: 0.75 },
-  { delay: 30, duration: 60 },
-  { delay: 30, duration: 60, intensity: 0.75 },
-  { delay: 30, duration: 60, intensity: 1 },
-])
-}} target="_blank" rel="noopener noreferrer">
+  {#snippet cardContent()}
     <Card.Root class={cn("my-glass")}>
       <Card.Header>
         <div class={cn("flex items-center gap-3")}>
@@ -76,5 +44,18 @@ let { title, description, heading, url, icon }: Props = $props();
         <Card.Description>{description}</Card.Description>
       </Card.Header>
     </Card.Root>
-  </LocalizedLink>
-</div>
+  {/snippet}
+
+  {#if url}
+    <LocalizedLink
+      href={url}
+      onclick={() => trigger(hapticsConfig)}
+      onpointerenter={() => trigger(hapticsConfig)}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      {@render cardContent()}
+    </LocalizedLink>
+  {:else}
+    {@render cardContent()}
+  {/if}

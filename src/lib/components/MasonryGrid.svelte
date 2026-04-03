@@ -77,6 +77,8 @@ const variantClasses: Record<MasonryVariant, string> = {
 
 <div class={cn(variantClasses[variant], "gap-4 w-full", className)}>
   {#each items as item (item.key)}
-    {@render children(item)}
+    <div class={cn("break-inside-avoid mb-4 block")}>
+      {@render children(item)}
+    </div>
   {/each}
 </div>

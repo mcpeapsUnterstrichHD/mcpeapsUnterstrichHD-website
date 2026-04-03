@@ -111,7 +111,7 @@ let rel = $derived(isExternal ? "noopener noreferrer" : undefined);
   { delay: 30, duration: 60, intensity: 0.75 },
   { delay: 30, duration: 60, intensity: 1 },
 ])
-}} class="break-inside-avoid mb-4 block">
+}}>
   <Card.Root class="my-glass">
     <Card.Header>
       <Card.Title>{projektTitle}</Card.Title>
