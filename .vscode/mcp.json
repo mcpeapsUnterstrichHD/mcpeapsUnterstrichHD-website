@@ -1,8 +1,9 @@
 {
   "servers": {
-    "jsrepo": {
-      "command": "npx",
-      "args": ["@jsrepo/mcp"]
+    "Svelte-MCP": {
+      "url": "https://mcp.svelte.dev/mcp",
+      "type": "http"
     }
-  }
+  },
+  "inputs": []
 }
