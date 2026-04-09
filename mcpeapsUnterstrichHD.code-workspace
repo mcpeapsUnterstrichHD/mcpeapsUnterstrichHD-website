@@ -7,14 +7,14 @@
   "settings": {
     "nuxt.isNuxtApp": false,
     "piny.project_settings": {
-      "open-pages": ["pinyfakepage.html"],
+      "open-pages": ["pinyfakepage.html"]
     },
     "files.associations": {
-      "*.css": "tailwindcss",
+      "*.css": "tailwindcss"
     },
-    "cmake.ignoreCMakeListsMissing": true,
+    "cmake.ignoreCMakeListsMissing": true
   },
   "extensions": {
-    "recommendations": ["svelte.svelte-vscode", "bradlc.vscode-tailwindcss"],
-  },
+    "recommendations": ["svelte.svelte-vscode", "bradlc.vscode-tailwindcss"]
+  }
 }
